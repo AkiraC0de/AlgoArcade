@@ -1,0 +1,35 @@
+{
+  "name": "module6-algo-arcade",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Module 6: Advanced Algorithms — retro arcade learning playground (Max Flow + String Matching)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/press-start-2p": "^5.2.5",
+    "@fontsource/space-mono": "^5.2.5",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "tailwindcss": "^4.1.4",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.19",
+    "vitest": "^2.1.9"
+  }
+}
