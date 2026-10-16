@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import type { Challenge } from "../challenges/challenges";
 import { starsForAttempts, useGameStore } from "../state/gameStore";
 import { inputCls, Panel, PixelButton, Stars } from "./ui";
@@ -80,14 +81,39 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
       </div>
 
       <div aria-live="polite" className="mt-2 min-h-5 font-pixel text-[9px]">
-        {solved || feedback === "right" ? (
-          <span className="text-neon-green">✓ CASE CLOSED — REWARD BANKED</span>
-        ) : feedback === "wrong" ? (
-          <span className="text-neon-red">✗ NOT QUITE — STUDY THE HINT AND RETRY</span>
-        ) : null}
+        <AnimatePresence mode="wait">
+          {solved || feedback === "right" ? (
+            <motion.span
+              key="right"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="text-neon-green inline-block"
+            >
+              ✓ CORRECT — EXERCISE COMPLETE
+            </motion.span>
+          ) : feedback === "wrong" ? (
+            <motion.span
+              key={`wrong-${attemptsThisSession}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, x: [0, -6, 6, -4, 4, 0] }}
+              transition={{ x: { duration: 0.35 }, opacity: { duration: 0.1 } }}
+              className="text-neon-red inline-block"
+            >
+              ✗ INCORRECT — CHECK THE HINT AND RETRY
+            </motion.span>
+          ) : null}
+        </AnimatePresence>
       </div>
       {showHint && !(solved || feedback === "right") && (
-        <p className="mt-1 text-xs text-neon-yellow font-term">HINT: {challenge.hint}</p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
+          className="mt-1 text-xs text-neon-yellow font-term"
+        >
+          HINT: {challenge.hint}
+        </motion.p>
       )}
       {attemptsThisSession > 0 && !solved && feedback !== "right" && (
         <p className="mt-1 text-[11px] text-dim">Attempts: {attemptsThisSession} — fewer attempts = more stars.</p>

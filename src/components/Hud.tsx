@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { motion } from "motion/react";
 import { useGameStore } from "../state/gameStore";
 import { levelFor, xpIntoLevel, XP_PER_LEVEL } from "../storage/schema";
 
@@ -9,17 +10,17 @@ export function Hud() {
   const into = xpIntoLevel(data.progress.xp);
 
   const nav = [
-    { to: "/", label: "ARCADE" },
-    { to: "/strings", label: "TEXT HUNTERS" },
-    { to: "/maxflow", label: "PIPE WORKS" },
-    { to: "/player", label: "PLAYER" },
+    { to: "/", label: "HOME" },
+    { to: "/strings", label: "STRING MATCHING" },
+    { to: "/maxflow", label: "MAX FLOW" },
+    { to: "/player", label: "PROGRESS" },
   ];
 
   return (
     <header className="sticky top-0 z-50 bg-crt/95 border-b-2 border-grid backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-3 py-2 flex flex-wrap items-center gap-3">
         <Link to="/" className="font-pixel text-[11px] text-neon-magenta neon-text whitespace-nowrap">
-          M6·ARCADE
+          MODULE 6
         </Link>
         <nav aria-label="Main" className="flex flex-wrap gap-1.5">
           {nav.map((n) => (
@@ -42,9 +43,11 @@ export function Hud() {
             LV {level}
           </span>
           <span className="hidden sm:inline-block w-20 h-2 border border-grid" aria-hidden>
-            <span
+            <motion.span
               className="block h-full bg-neon-purple"
-              style={{ width: `${(into / XP_PER_LEVEL) * 100}%` }}
+              initial={false}
+              animate={{ width: `${(into / XP_PER_LEVEL) * 100}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
             />
           </span>
           <span className="text-neon-yellow">{data.progress.xp} XP</span>

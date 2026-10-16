@@ -52,7 +52,7 @@ export const edgeKey = (from: string, to: string): string => `${from}->${to}`;
 export function validateFlowGraph(g: FlowGraph): string[] {
   const errors: string[] = [];
   if (g.nodes.length < 2) errors.push("Need at least 2 nodes.");
-  if (g.nodes.length > 8) errors.push("Max 8 nodes (arcade hardware limit).");
+  if (g.nodes.length > 8) errors.push("Max 8 nodes supported.");
   if (new Set(g.nodes).size !== g.nodes.length) errors.push("Node names must be unique.");
   if (g.source === g.sink) errors.push("Source and sink must be different nodes.");
   if (!g.nodes.includes(g.source)) errors.push("Source node missing.");

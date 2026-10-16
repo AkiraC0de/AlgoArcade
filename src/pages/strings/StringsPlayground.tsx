@@ -16,19 +16,19 @@ const COMPLEXITY: Record<Algo, { best: string; worst: string; space: string; not
     best: "O(n) — pattern found at first position with all chars matching",
     worst: "O(n·m) — e.g. text=AAAAAA, pattern=AAAB",
     space: "O(1)",
-    note: "The Clumsy Rookie: slides one position at a time, restarts comparisons from scratch.",
+    note: "Slides one position at a time, restarts comparisons from scratch at each shift.",
   },
   "rabin-karp": {
     best: "O(n+m) — no hash collisions except true matches",
     worst: "O(n·m) — many spurious hash collisions",
     space: "O(1)",
-    note: "The Digital Fingerprint: rolling hash d=10, q=241. Character verification only on hash match.",
+    note: "Rolling hash with d=10, q=241. Character verification only when hashes match.",
   },
   "boyer-moore": {
     best: "O(n/m) — sublinear! Skips large sections via bad-character rule",
     worst: "O(n·m) — without good-suffix rule (not implemented here)",
     space: "O(m) for the bad-match table",
-    note: "Detective #3: compares right-to-left, uses Bad Match Table to skip. Good Suffix rule mentioned in course but not implemented (v1).",
+    note: "Compares right-to-left, uses Bad Match Table to skip ahead. Good Suffix rule mentioned in course but not implemented (v1).",
   },
 };
 

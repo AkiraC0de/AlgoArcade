@@ -22,7 +22,7 @@ export interface Playback<T> {
  * Trace playback: an immutable step array plus a cursor.
  * Step-back is free because every step is a full snapshot.
  */
-export function usePlayback<T>(baseDelayMs = 900): Playback<T> {
+export function usePlayback<T>(baseDelayMs = 1800): Playback<T> {
   const [steps, setStepsState] = useState<T[]>([]);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);

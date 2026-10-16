@@ -1,5 +1,5 @@
 /**
- * Naive (Brute-Force) string matching — "The Clumsy Rookie".
+ * Naive (Brute-Force) string matching.
  * Slides the pattern one position at a time, comparing left to right,
  * restarting comparisons from scratch at every shift.
  */
@@ -62,7 +62,7 @@ export function runNaive(text: string, pattern: string): NaiveResult {
     }
     if (j === m) {
       matches.push(s);
-      snap("match", s, m - 1, `SUSPECT FOUND! Pattern matched at index ${s}.`);
+      snap("match", s, m - 1, `Match found at index ${s}.`);
     }
   }
 

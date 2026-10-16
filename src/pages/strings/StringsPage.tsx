@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { PixelButton } from "../../components/ui";
 import { StringsLearn } from "./StringsLearn";
 import { StringsPlayground } from "./StringsPlayground";
@@ -12,7 +13,7 @@ export default function StringsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <h1 className="font-pixel text-sm text-neon-cyan neon-text">TEXT HUNTERS</h1>
+        <h1 className="font-pixel text-sm text-neon-cyan neon-text">STRING MATCHING</h1>
         <span className="text-[10px] text-dim font-term">String Matching · Module 6</span>
       </div>
 
@@ -26,16 +27,25 @@ export default function StringsPage() {
             role="tab"
             aria-selected={tab === t}
           >
-            {t === "learn" ? "📖 LEARN" : t === "playground" ? "🕹 PLAYGROUND" : "📋 CASE FILES"}
+            {t === "learn" ? "📖 LEARN" : t === "playground" ? "🕹 PLAYGROUND" : "📋 EXERCISES"}
           </PixelButton>
         ))}
       </div>
 
-      <div role="tabpanel">
-        {tab === "learn" && <StringsLearn />}
-        {tab === "playground" && <StringsPlayground />}
-        {tab === "challenges" && <StringsChallenges />}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          role="tabpanel"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.16, ease: "easeOut" }}
+        >
+          {tab === "learn" && <StringsLearn />}
+          {tab === "playground" && <StringsPlayground />}
+          {tab === "challenges" && <StringsChallenges />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

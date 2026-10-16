@@ -1,4 +1,5 @@
 import { useGameStore } from "../state/gameStore";
+import { motion } from "motion/react";
 import { levelFor, xpIntoLevel, XP_PER_LEVEL } from "../storage/schema";
 import { Panel, PixelButton, Stars } from "../components/ui";
 import { CHALLENGES } from "../challenges/challenges";
@@ -16,7 +17,7 @@ export default function PlayerPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-pixel text-sm text-neon-yellow neon-text">PLAYER CARD</h1>
+      <h1 className="font-pixel text-sm text-neon-yellow neon-text">PROGRESS</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Progress */}
@@ -25,24 +26,26 @@ export default function PlayerPage() {
             <div className="flex items-center gap-3">
               <span className="font-pixel text-[10px] text-neon-purple">LV {level}</span>
               <div className="flex-1 h-3 border border-grid bg-crt">
-                <div
-                  className="h-full bg-neon-purple transition-all"
-                  style={{ width: `${(into / XP_PER_LEVEL) * 100}%` }}
+                <motion.div
+                  className="h-full bg-neon-purple"
+                  initial={false}
+                  animate={{ width: `${(into / XP_PER_LEVEL) * 100}%` }}
+                  transition={{ type: "spring", stiffness: 120, damping: 20 }}
                 />
               </div>
               <span className="text-dim text-xs">{into}/{XP_PER_LEVEL} XP</span>
             </div>
             <p>Total XP: <span className="text-neon-yellow">{data.progress.xp}</span></p>
             <p>Coins: <span className="text-neon-yellow">⬤ {data.progress.coins}</span></p>
-            <p>Challenges: <span className="text-neon-green">{completed}/{totalChallenges}</span></p>
+            <p>Exercises: <span className="text-neon-green">{completed}/{totalChallenges}</span></p>
             <p>Total stars: <span className="text-neon-yellow">{totalStars}/{totalChallenges * 3}</span></p>
           </div>
         </Panel>
 
         {/* Challenge log */}
-        <Panel title="CHALLENGE LOG" accent="border-neon-cyan">
+        <Panel title="EXERCISE LOG" accent="border-neon-cyan">
           {completed === 0 ? (
-            <p className="text-sm text-dim font-term">No challenges completed yet. Visit TEXT HUNTERS or PIPE WORKS!</p>
+            <p className="text-sm text-dim font-term">No exercises completed yet. Visit String Matching or Maximum Flow!</p>
           ) : (
             <ul className="space-y-1 text-xs font-term">
               {Object.entries(data.challenges)

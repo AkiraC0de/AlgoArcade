@@ -1,5 +1,5 @@
 /**
- * Boyer-Moore string matching — "Detective #3".
+ * Boyer-Moore string matching.
  * Compares right-to-left inside the window and uses the Bad Character
  * rule (precomputed Bad Match Table) to skip sections of the text.
  *
@@ -88,7 +88,7 @@ export function runBoyerMoore(text: string, pattern: string): BMResult {
 
     if (j < 0) {
       matches.push(s);
-      snap("match", s, 0, `SUSPECT FOUND at index ${s}! Slide by 1 to keep hunting.`);
+      snap("match", s, 0, `Match found at index ${s}. Slide by 1 to continue searching.`);
       s += 1;
       continue;
     }

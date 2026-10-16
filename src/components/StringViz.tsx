@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import type { NaiveStep } from "../engine/strings/naive";
 import type { RKStep } from "../engine/strings/rabinKarp";
 import type { BMStep } from "../engine/strings/boyerMoore";
@@ -83,10 +84,15 @@ export function StringViz({
         </div>
       </div>
 
-      {/* Pattern row (aligned to shift) */}
+      {/* Pattern row (aligned to shift) — springs horizontally */}
       {!isDone && shift >= 0 && (
         <div className="overflow-x-auto">
-          <div className="inline-flex gap-px" style={{ marginLeft: `${shift * 29}px` }}>
+          <motion.div
+            className="inline-flex gap-px"
+            initial={false}
+            animate={{ marginLeft: shift * 29 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
             {pattern.split("").map((ch, pi) => {
               let bg = "bg-panel";
               let fg = "text-neon-cyan";
@@ -111,10 +117,15 @@ export function StringViz({
                 </span>
               );
             })}
-          </div>
-          <div className="text-[10px] text-neon-cyan font-pixel mt-1" style={{ marginLeft: `${shift * 29}px` }}>
+          </motion.div>
+          <motion.div
+            className="text-[10px] text-neon-cyan font-pixel mt-1"
+            initial={false}
+            animate={{ marginLeft: shift * 29 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
             ▲ shift {shift}
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -139,16 +150,27 @@ export function StringViz({
 
       {/* Match celebration */}
       {step.kind === "match" && (
-        <div className="text-sm text-neon-green font-pixel pop-in border border-neon-green/50 bg-neon-green/10 px-3 py-1.5 inline-block">
+        <motion.div
+          key={`match-${shift}`}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 18 }}
+          className="text-sm text-neon-green font-pixel border border-neon-green/50 bg-neon-green/10 px-3 py-1.5 inline-block"
+        >
           ★ MATCH FOUND AT INDEX {shift} ★
-        </div>
+        </motion.div>
       )}
 
       {/* Done summary */}
       {isDone && (
-        <div className="text-sm text-neon-yellow font-term border border-neon-yellow/40 bg-neon-yellow/10 px-3 py-2">
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="text-sm text-neon-yellow font-term border border-neon-yellow/40 bg-neon-yellow/10 px-3 py-2"
+        >
           {step.note}
-        </div>
+        </motion.div>
       )}
     </div>
   );

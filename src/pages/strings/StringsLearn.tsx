@@ -16,14 +16,14 @@ export function StringsLearn() {
         </div>
       </Panel>
 
-      <Panel title="DETECTIVE #1 · THE CLUMSY ROOKIE (NAIVE)" accent="border-neon-green">
+      <Panel title="ALGORITHM 1 · NAIVE (BRUTE-FORCE)" accent="border-neon-green">
         <div className="text-sm font-term text-white space-y-2">
           <p>Slides the pattern one position at a time, left to right. At each position, compares characters from the start. On mismatch, shifts by 1 and restarts.</p>
           <p className="text-dim">Time: O(n·m) worst case. Space: O(1). Simple but slow on repetitive inputs.</p>
         </div>
       </Panel>
 
-      <Panel title="DETECTIVE #2 · THE DIGITAL FINGERPRINT (RABIN-KARP)" accent="border-neon-purple">
+      <Panel title="ALGORITHM 2 · RABIN-KARP (ROLLING HASH)" accent="border-neon-purple">
         <div className="text-sm font-term text-white space-y-2">
           <p>
             Computes a <span className="text-neon-purple">rolling hash</span> of each window. Only when the
@@ -40,7 +40,7 @@ export function StringsLearn() {
         </div>
       </Panel>
 
-      <Panel title="DETECTIVE #3 · THE SKIP MASTER (BOYER-MOORE)" accent="border-neon-magenta">
+      <Panel title="ALGORITHM 3 · BOYER-MOORE (BAD CHARACTER RULE)" accent="border-neon-magenta">
         <div className="text-sm font-term text-white space-y-2">
           <p>
             Compares <span className="text-neon-magenta">right-to-left</span> inside the window. On mismatch,
@@ -61,7 +61,7 @@ export function StringsLearn() {
           <li>Naive is simplest but worst-case slowest.</li>
           <li>Rabin-Karp trades character comparisons for hash computations.</li>
           <li>Boyer-Moore can skip entire sections of the text.</li>
-          <li>Use the Playground to race them on the same input and compare comparison counts.</li>
+          <li>Use the Playground to run all three on the same input and compare comparison counts.</li>
         </ul>
       </Panel>
     </div>

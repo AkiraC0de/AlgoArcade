@@ -86,7 +86,7 @@ export function runRabinKarp(rawText: string, rawPattern: string, d = 10, q = 24
       }
       if (ok) {
         matches.push(s);
-        snap("match", s, `Verified! SUSPECT FOUND at index ${s}.`);
+        snap("match", s, `Verified — match found at index ${s}.`);
       } else {
         snap("collision", s, `Hash collision! Fingerprints matched but the characters differ. Keep sliding.`);
       }

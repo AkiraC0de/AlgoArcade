@@ -6,7 +6,7 @@ export function MaxFlowChallenges() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-dim font-term">
-        Complete the missions to earn stars and XP. Fewer attempts = more stars.
+        Complete the exercises to earn stars and XP. Fewer attempts = more stars.
       </p>
       {mfChallenges.map((c) => (
         <ChallengeRunner key={c.id} challenge={c} />
