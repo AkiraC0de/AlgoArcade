@@ -1,7 +1,7 @@
 import type { Playback } from "../hooks/usePlayback";
 import { PixelButton } from "./ui";
 
-export function PlaybackControls({ pb }: { pb: Playback<unknown> }) {
+export function PlaybackControls<T>({ pb }: { pb: Playback<T> }) {
   const { count } = pb;
   return (
     <div className="flex flex-wrap items-center gap-2">
