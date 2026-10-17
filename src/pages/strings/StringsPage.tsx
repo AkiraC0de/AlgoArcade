@@ -4,8 +4,9 @@ import { PixelButton } from "../../components/ui";
 import { StringsLearn } from "./StringsLearn";
 import { StringsPlayground } from "./StringsPlayground";
 import { StringsChallenges } from "./StringsChallenges";
+import { RaceMode } from "./RaceMode";
 
-type Tab = "learn" | "playground" | "challenges";
+type Tab = "learn" | "playground" | "race" | "challenges";
 
 export default function StringsPage() {
   const [tab, setTab] = useState<Tab>("playground");
@@ -18,7 +19,7 @@ export default function StringsPage() {
       </div>
 
       <div className="flex gap-1" role="tablist" aria-label="String matching sections">
-        {(["learn", "playground", "challenges"] as Tab[]).map((t) => (
+        {(["learn", "playground", "race", "challenges"] as Tab[]).map((t) => (
           <PixelButton
             key={t}
             variant={tab === t ? "cyan" : "dim"}
@@ -27,7 +28,7 @@ export default function StringsPage() {
             role="tab"
             aria-selected={tab === t}
           >
-            {t === "learn" ? "📖 LEARN" : t === "playground" ? "🕹 PLAYGROUND" : "📋 EXERCISES"}
+            {t === "learn" ? "📖 LEARN" : t === "playground" ? "🕹 PLAYGROUND" : t === "race" ? "🏁 RACE" : "📋 EXERCISES"}
           </PixelButton>
         ))}
       </div>
@@ -43,6 +44,7 @@ export default function StringsPage() {
         >
           {tab === "learn" && <StringsLearn />}
           {tab === "playground" && <StringsPlayground />}
+          {tab === "race" && <RaceMode />}
           {tab === "challenges" && <StringsChallenges />}
         </motion.div>
       </AnimatePresence>

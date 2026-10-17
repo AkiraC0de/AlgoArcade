@@ -1,4 +1,5 @@
 import { Panel } from "../../components/ui";
+import { Term } from "../../components/Term";
 
 export function StringsLearn() {
   return (
@@ -6,8 +7,8 @@ export function StringsLearn() {
       <Panel title="THE PROBLEM" accent="border-neon-cyan">
         <div className="text-sm font-term text-white space-y-2">
           <p>
-            Given a <span className="text-neon-cyan">text</span> of length <em>n</em> and a{" "}
-            <span className="text-neon-magenta">pattern</span> of length <em>m</em>, find all positions
+            Given a <Term>text</Term> of length <em>n</em> and a{" "}
+            <Term>pattern</Term> of length <em>m</em>, find all positions
             where the pattern occurs in the text.
           </p>
           <p className="text-dim">

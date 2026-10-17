@@ -14,6 +14,7 @@ export interface Playback<T> {
   toggle: () => void;
   stepFwd: () => void;
   stepBack: () => void;
+  seek: (i: number) => void;
   reset: () => void;
   setSteps: (steps: T[]) => void;
 }
@@ -22,7 +23,7 @@ export interface Playback<T> {
  * Trace playback: an immutable step array plus a cursor.
  * Step-back is free because every step is a full snapshot.
  */
-export function usePlayback<T>(baseDelayMs = 1800): Playback<T> {
+export function usePlayback<T>(baseDelayMs = 3000): Playback<T> {
   const [steps, setStepsState] = useState<T[]>([]);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -73,6 +74,14 @@ export function usePlayback<T>(baseDelayMs = 1800): Playback<T> {
     setIndex((i) => Math.max(i - 1, 0));
   }, []);
 
+  const seek = useCallback(
+    (i: number) => {
+      setPlaying(false);
+      setIndex(Math.max(0, Math.min(i, Math.max(count - 1, 0))));
+    },
+    [count]
+  );
+
   const reset = useCallback(() => {
     setPlaying(false);
     setIndex(0);
@@ -92,6 +101,7 @@ export function usePlayback<T>(baseDelayMs = 1800): Playback<T> {
     toggle,
     stepFwd,
     stepBack,
+    seek,
     reset,
     setSteps,
   };

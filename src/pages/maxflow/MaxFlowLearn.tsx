@@ -1,4 +1,5 @@
 import { Panel } from "../../components/ui";
+import { Term } from "../../components/Term";
 
 export function MaxFlowLearn() {
   return (
@@ -31,9 +32,9 @@ export function MaxFlowLearn() {
 
       <Panel title="KEY CONCEPTS" accent="border-neon-purple">
         <div className="text-sm font-term text-white space-y-2">
-          <p><span className="text-neon-purple">Residual graph:</span> shows remaining capacity on each edge. Reverse edges represent the ability to "undo" previously sent flow.</p>
-          <p><span className="text-neon-purple">Augmenting path:</span> any path from source to sink in the residual graph where every edge has positive residual capacity.</p>
-          <p><span className="text-neon-purple">Bottleneck:</span> the minimum residual capacity along the chosen path — determines how much flow to push.</p>
+          <p><Term>residual graph</Term>: shows remaining capacity on each edge. Reverse edges represent the ability to "undo" previously sent flow.</p>
+          <p><Term>augmenting path</Term>: any path from source to sink in the residual graph where every edge has positive <Term>residual capacity</Term>.</p>
+          <p><Term>bottleneck</Term>: the minimum residual capacity along the chosen path — determines how much flow to push.</p>
           <p><span className="text-neon-purple">Path choice flexibility:</span> the document emphasizes that different path orders can be chosen, but the final maximum flow value is always the same (Max-Flow Min-Cut theorem).</p>
         </div>
       </Panel>
