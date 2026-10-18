@@ -6,6 +6,7 @@ import { getTopic, LEARNING_STAGES } from "../data/module6Lessons";
 import { MaxFlowConceptVisual, MaxFlowPathLab } from "./MaxFlowVisual";
 import { usePlayback } from "../hooks/usePlayback";
 import { runFordFulkerson, type MaxFlowStep } from "../engine/maxflow/fordFulkerson";
+import { getMaxFlowStepDelay } from "../engine/maxflow/playbackTiming";
 import { SIMPLE_17 } from "../engine/maxflow/presets";
 import { FlowGraphViz } from "./FlowGraphViz";
 import { StepLog } from "./StepLog";
@@ -23,7 +24,7 @@ function persist(progress: Record<string, number>) {
 }
 
 function WatchTrace() {
-  const pb = usePlayback<MaxFlowStep>(2200);
+  const pb = usePlayback<MaxFlowStep>(2200, getMaxFlowStepDelay);
   const [started, setStarted] = useState(false);
   const steps = runFordFulkerson(SIMPLE_17, "bfs").steps;
   useEffect(() => {

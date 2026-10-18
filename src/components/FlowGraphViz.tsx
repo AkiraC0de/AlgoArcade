@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Search, Zap, Ban } from "lucide-react";
 import type { FlowGraph, MaxFlowStep } from "../engine/maxflow/fordFulkerson";
 import { edgeKey } from "../engine/maxflow/fordFulkerson";
+import { MAX_FLOW_EDGE_DISPLAY_MS } from "../engine/maxflow/playbackTiming";
 import { PRESET_LAYOUTS } from "../engine/maxflow/presets";
 
 const IDLE_EDGE = "#c9dcc6";
@@ -27,17 +28,31 @@ export function FlowGraphViz({
   const NODE_R = 18;
 
   const activePath = step?.path ?? [];
-  const [animatedEdgeIndex, setAnimatedEdgeIndex] = useState(0);
+  const animationKey = step
+    ? `${step.kind}-${step.iteration}-${activePath.join("->")}`
+    : "idle";
+  const [animation, setAnimation] = useState({ key: "idle", edgeIndex: 0 });
 
   useLayoutEffect(() => {
-    setAnimatedEdgeIndex(0);
+    setAnimation({ key: animationKey, edgeIndex: 0 });
     if (!step || step.kind !== "push" || activePath.length < 2) return;
     const timers: number[] = [];
-    activePath.slice(1).forEach((_, index) => {
-      timers.push(window.setTimeout(() => setAnimatedEdgeIndex(index), (index + 1) * 850));
+    // Edge 0 is visible immediately. Reveal later edges every two seconds;
+    // playback holds the completed path for one additional two-second slot.
+    activePath.slice(2).forEach((_, offset) => {
+      const edgeIndex = offset + 1;
+      timers.push(window.setTimeout(() => {
+        setAnimation((current) => current.key === animationKey
+          ? { key: animationKey, edgeIndex }
+          : current);
+      }, edgeIndex * MAX_FLOW_EDGE_DISPLAY_MS));
     });
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [step?.kind, step?.iteration, activePath.join("->")]);
+  }, [animationKey]);
+
+  // Never reuse the previous path's final index during the first render of a
+  // new path. That stale index was the source of A → T appearing before S → A.
+  const animatedEdgeIndex = animation.key === animationKey ? animation.edgeIndex : 0;
 
   const activeEdges = new Set<string>();
   // Start at the source edge and accumulate each segment as it is revealed.

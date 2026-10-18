@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Play, Shuffle } from "lucide-react";
 import { usePlayback } from "../../hooks/usePlayback";
 import { runFordFulkerson, validateFlowGraph, type FlowGraph, type MaxFlowStep, type PathMode } from "../../engine/maxflow/fordFulkerson";
+import { getMaxFlowStepDelay } from "../../engine/maxflow/playbackTiming";
 import { CLASSIC_23, DIAMOND_9, PRACTICE_13, SIMPLE_17, SOURCE_LIMIT_11 } from "../../engine/maxflow/presets";
 import { FlowGraphViz } from "../../components/FlowGraphViz";
 import { PlaybackControls } from "../../components/PlaybackControls";
@@ -27,7 +28,7 @@ export function MaxFlowPlayground() {
   const [error, setError] = useState("");
 
   const graph = useMemo(() => PRESETS[presetId], [presetId]);
-  const pb = usePlayback<MaxFlowStep>(2400);
+  const pb = usePlayback<MaxFlowStep>(2400, getMaxFlowStepDelay);
   useKeyboardShortcuts(pb);
 
   const run = () => {

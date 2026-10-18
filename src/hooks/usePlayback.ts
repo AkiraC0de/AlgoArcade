@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
+export type StepDelay<T> = (step: T, index: number, speed: number, baseDelayMs: number) => number;
+
 export interface Playback<T> {
   steps: T[];
   step: T | null;
@@ -23,7 +25,7 @@ export interface Playback<T> {
  * Trace playback: an immutable step array plus a cursor.
  * Step-back is free because every step is a full snapshot.
  */
-export function usePlayback<T>(baseDelayMs = 3000): Playback<T> {
+export function usePlayback<T>(baseDelayMs = 3000, getStepDelay?: StepDelay<T>): Playback<T> {
   const [steps, setStepsState] = useState<T[]>([]);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -44,11 +46,15 @@ export function usePlayback<T>(baseDelayMs = 3000): Playback<T> {
       setPlaying(false);
       return;
     }
+    const currentStep = steps[index];
+    const delay = getStepDelay
+      ? getStepDelay(currentStep, index, speed, baseDelayMs)
+      : baseDelayMs / speed;
     const id = window.setTimeout(() => {
       setIndex((i) => Math.min(i + 1, count - 1));
-    }, baseDelayMs / speed);
+    }, delay);
     return () => window.clearTimeout(id);
-  }, [playing, index, count, speed, baseDelayMs]);
+  }, [playing, index, count, speed, baseDelayMs, getStepDelay, steps]);
 
   const play = useCallback(() => {
     if (count === 0) return;
