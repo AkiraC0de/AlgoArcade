@@ -4,8 +4,8 @@ const MEMBERS = [
   { name: "Bodonia, Ella Joy L.", role: "Maximum Flow presenter" },
   { name: "Fernandez, Mcraven Akira S.", role: "Developer · String Matching presenter", github: "https://github.com/AkiraC0de/" },
   { name: "Ebrado, Ralph Oliver N.", role: "Hashing presenter" },
-  { name: "Naelgas, Sherwin Lloyd N.", role: "Computational Geometry presenter" },
-  { name: "Ellorinco, Dhan Renz D.C.", role: "Parallel Algorithms presenter" },
+  { name: "Ellorinco, Dhan Renz D.C.", role: "Leader · Computational Geometry presenter" },
+  { name: "Naelgas, Sherwin Lloyd N.", role: "Parallel Algorithms presenter" },
 ];
 
 export function SiteFooter() {
