@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import {
   ArrowRight,
   Beaker,
-  Eye,
+  BookOpen,
   GraduationCap,
   Lock,
   Network,
@@ -12,6 +12,7 @@ import {
   ScanSearch,
   Search,
   Sparkles,
+  Trophy,
 } from "lucide-react";
 import { useGameStore } from "../state/gameStore";
 import { CHALLENGES } from "../challenges/challenges";
@@ -26,10 +27,11 @@ function moduleProgress(world: "strings" | "maxflow", challenges: Record<string,
 }
 
 const LEARNING_LOOP = [
-  { Icon: Search, label: "Discover", text: "See what each algorithm does" },
-  { Icon: Beaker, label: "Experiment", text: "Run it on your own inputs" },
-  { Icon: Eye, label: "Observe", text: "Step through every operation" },
-  { Icon: Repeat, label: "Practice", text: "Prove it in the exercises" },
+  { Icon: Search, label: "Discover", text: "See what each topic covers and where to start" },
+  { Icon: BookOpen, label: "Learn", text: "Read short, clear explanations with examples" },
+  { Icon: Beaker, label: "Explore", text: "Run the algorithm on your own inputs" },
+  { Icon: Repeat, label: "Practice", text: "Check understanding with exercises and feedback" },
+  { Icon: Trophy, label: "Master", text: "Review progress and revisit hard concepts" },
 ];
 
 export default function Home() {
@@ -155,8 +157,8 @@ export default function Home() {
 
       {/* How learning works */}
       <section aria-label="How learning works" className="clay p-6">
-        <h2 className="font-display font-bold text-xl text-ink mb-4">How you will learn</h2>
-        <ol className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="font-display font-bold text-xl text-ink mb-4">Your learning path</h2>
+        <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {LEARNING_LOOP.map(({ Icon, label, text }, i) => (
             <motion.li
               key={label}

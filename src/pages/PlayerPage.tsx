@@ -116,7 +116,7 @@ export default function PlayerPage() {
                 type="checkbox"
                 checked={data.settings.reducedMotion}
                 onChange={(e) => updateSettings({ reducedMotion: e.target.checked })}
-                className="w-5 h-5 accent-[#4f46e5] rounded"
+                className="w-5 h-5 accent-[#047857] rounded"
               />
               Reduced motion
             </label>

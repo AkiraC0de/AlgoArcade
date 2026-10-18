@@ -20,7 +20,8 @@ export function Button({
   return (
     <button
       {...rest}
-      className={`font-display font-semibold text-sm leading-none min-h-11 px-4 py-2.5 rounded-xl border-2
+      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0
+        font-display font-bold text-sm leading-none min-h-11 px-4 py-2.5 rounded-xl border-2
         transition-all duration-200 cursor-pointer
         ${V[variant]} ${active ? "ring-2 ring-offset-2 ring-primary shadow-clay-sm" : "shadow-clay-sm"}
         hover:enabled:brightness-105 hover:enabled:-translate-y-px active:enabled:translate-y-0.5
@@ -62,7 +63,7 @@ export const Panel = Card;
 
 export function Badge({ children, tone = "text-primary bg-primary/10" }: { children: ReactNode; tone?: string }) {
   return (
-    <span className={`font-display font-semibold text-xs rounded-full px-3 py-1 ${tone}`}>
+    <span className={`inline-flex items-center gap-1 font-display font-bold text-xs rounded-full px-3 py-1 ${tone}`}>
       {children}
     </span>
   );
@@ -70,7 +71,7 @@ export function Badge({ children, tone = "text-primary bg-primary/10" }: { child
 
 /** Compat alias. */
 export function Chip({ children, color = "text-primary" }: { children: ReactNode; color?: string }) {
-  return <Badge tone={`${color} bg-current/0 border border-current`}>{children}</Badge>;
+  return <Badge tone={`${color} bg-transparent border border-current`}>{children}</Badge>;
 }
 
 export function Stars({ n }: { n: number }) {
@@ -90,7 +91,7 @@ export function Stars({ n }: { n: number }) {
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm text-muted-fg">
-      <span className="font-display font-semibold text-xs uppercase tracking-wide">{label}</span>
+      <span className="font-display font-bold text-xs uppercase tracking-wide">{label}</span>
       {children}
     </label>
   );

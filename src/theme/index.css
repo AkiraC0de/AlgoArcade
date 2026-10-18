@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Baloo 2", "Comic Neue", system-ui, sans-serif;
-  --font-body: "Comic Neue", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Nunito", "Inter Variable", system-ui, sans-serif;
+  --font-body: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
 
-  /* Palette — ui-ux-pro-max MASTER (Claymorphism, light) */
-  --color-primary: #4f46e5;
+  /* Green-centered educational palette */
+  --color-primary: #047857;
   --color-primary-fg: #ffffff;
-  --color-secondary: #818cf8;
-  --color-accent: #ea580c;
-  --color-accent-fg: #1e1b4b;
-  --color-surface: #eef2ff;
-  --color-ink: #1e1b4b;
+  --color-secondary: #6ee7b7;
+  --color-accent: #b45309;
+  --color-accent-fg: #ffffff;
+  --color-surface: #f3f6f1;
+  --color-ink: #16281d;
   --color-card: #ffffff;
-  --color-muted: #ebeef8;
-  --color-muted-fg: #475569;
-  --color-line: #c7d2fe;
+  --color-muted: #e6ede3;
+  --color-muted-fg: #4d5c50;
+  --color-line: #c9dcc6;
   --color-ok: #15803d;
   --color-warn: #b45309;
   --color-danger: #dc2626;
-  --color-info: #0e7490;
+  --color-info: #2563eb;
 
-  --shadow-clay: 0 10px 20px rgba(30, 27, 75, 0.08), 0 2px 4px rgba(30, 27, 75, 0.05),
-    inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -6px 12px rgba(79, 70, 229, 0.06);
-  --shadow-clay-sm: 0 4px 8px rgba(30, 27, 75, 0.07),
-    inset 0 1px 2px rgba(255, 255, 255, 0.9), inset 0 -3px 6px rgba(79, 70, 229, 0.05);
+  --shadow-clay: 0 10px 20px rgba(22, 40, 29, 0.08), 0 2px 4px rgba(22, 40, 29, 0.05),
+    inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -6px 12px rgba(4, 120, 87, 0.06);
+  --shadow-clay-sm: 0 4px 8px rgba(22, 40, 29, 0.07),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9), inset 0 -3px 6px rgba(4, 120, 87, 0.05);
 }
 
 html,
@@ -38,7 +38,7 @@ body {
   font-family: var(--font-body);
 }
 
-/* Claymorphism surfaces */
+/* Soft raised surfaces */
 .clay {
   background: var(--color-card);
   border: 2px solid var(--color-line);
@@ -58,8 +58,8 @@ body {
 }
 .clay-pressable:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(30, 27, 75, 0.1), 0 3px 6px rgba(30, 27, 75, 0.06),
-    inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -6px 12px rgba(79, 70, 229, 0.06);
+  box-shadow: 0 14px 24px rgba(22, 40, 29, 0.1), 0 3px 6px rgba(22, 40, 29, 0.06),
+    inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -6px 12px rgba(4, 120, 87, 0.06);
 }
 .clay-pressable:active {
   transform: translateY(1px);

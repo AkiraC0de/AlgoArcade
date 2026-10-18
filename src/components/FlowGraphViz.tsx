@@ -4,7 +4,7 @@ import type { FlowGraph, MaxFlowStep } from "../engine/maxflow/fordFulkerson";
 import { edgeKey } from "../engine/maxflow/fordFulkerson";
 import { PRESET_LAYOUTS } from "../engine/maxflow/presets";
 
-const IDLE_EDGE = "#c7d2fe";
+const IDLE_EDGE = "#c9dcc6";
 const FLOW_EDGE = "#15803d";
 const ACTIVE_EDGE = "#f59e0b";
 
@@ -85,7 +85,7 @@ export function FlowGraphViz({
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke="#ea580c"
+                  stroke="#d97706"
                   strokeWidth={1.5}
                   strokeDasharray="5 7"
                   initial={{ strokeDashoffset: 24 }}
@@ -114,7 +114,7 @@ export function FlowGraphViz({
                 fontFamily="Comic Neue, sans-serif"
                 initial={false}
                 animate={{
-                  fill: isActive ? "#b45309" : residual === 0 ? "#dc2626" : "#475569",
+                  fill: isActive ? "#b45309" : residual === 0 ? "#dc2626" : "#4d5c50",
                 }}
                 transition={{ duration: 0.25 }}
               >
@@ -153,7 +153,7 @@ export function FlowGraphViz({
                 animate={{ r: NODE_R }}
                 transition={{ delay: idx * 0.06, type: "spring", stiffness: 320, damping: 20 }}
                 fill="#ffffff"
-                stroke={isSource ? "#4f46e5" : isSink ? "#ea580c" : inPath ? ACTIVE_EDGE : IDLE_EDGE}
+                stroke={isSource ? "#047857" : isSink ? "#b45309" : inPath ? ACTIVE_EDGE : IDLE_EDGE}
                 strokeWidth={inPath ? 3 : 2}
               />
               <motion.text
@@ -166,7 +166,7 @@ export function FlowGraphViz({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: idx * 0.06 + 0.1, duration: 0.2 }}
-                fill={isSource ? "#4f46e5" : isSink ? "#ea580c" : inPath ? "#b45309" : "#1e1b4b"}
+                fill={isSource ? "#047857" : isSink ? "#b45309" : inPath ? "#b45309" : "#16281d"}
               >
                 {n}
               </motion.text>
@@ -178,7 +178,7 @@ export function FlowGraphViz({
                   fontSize={9}
                   fontWeight={700}
                   fontFamily="Baloo 2, sans-serif"
-                  fill={isSource ? "#4f46e5" : "#ea580c"}
+                  fill={isSource ? "#047857" : "#b45309"}
                 >
                   {isSource ? "SOURCE" : "SINK"}
                 </text>
@@ -189,7 +189,7 @@ export function FlowGraphViz({
 
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L8,3 L0,6" fill="#c7d2fe" />
+            <path d="M0,0 L8,3 L0,6" fill="#c9dcc6" />
           </marker>
           <marker id="arrowFlow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
             <path d="M0,0 L8,3 L0,6" fill="#15803d" />
