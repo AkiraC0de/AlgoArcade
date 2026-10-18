@@ -26,16 +26,84 @@ function HashLab() {
   </Card>;
 }
 
+type GeometryPoint = { x: number; y: number; label: string };
+type CoordinateDraft = Record<string, { x: string; y: string }>;
+
+const INITIAL_GEOMETRY_POINTS: GeometryPoint[] = [
+  { x: 1, y: 2, label: "A" },
+  { x: 4, y: 6, label: "B" },
+  { x: 2, y: 3, label: "C" },
+];
+
+function makeDrafts(points: GeometryPoint[]): CoordinateDraft {
+  return Object.fromEntries(points.map((point) => [point.label, { x: String(point.x), y: String(point.y) }]));
+}
+
+function normalizeCoordinateInput(value: string) {
+  if (value === "" || value === "-") return value;
+  return value.replace(/^(-?)0+(?=\d)/, "$1");
+}
+
 function GeometryLab() {
-  const [points, setPoints] = useState([{ x: 1, y: 2, label: "A" }, { x: 4, y: 6, label: "B" }, { x: 2, y: 3, label: "C" }]);
-  const distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
-  const cross = (points[1].x-points[0].x)*(points[2].y-points[0].y)-(points[1].y-points[0].y)*(points[2].x-points[0].x);
+  const [points, setPoints] = useState<GeometryPoint[]>(INITIAL_GEOMETRY_POINTS);
+  const [drafts, setDrafts] = useState<CoordinateDraft>(() => makeDrafts(INITIAL_GEOMETRY_POINTS));
+  const primaryPoints = points.slice(0, 3);
+  const distance = Math.hypot(primaryPoints[1].x - primaryPoints[0].x, primaryPoints[1].y - primaryPoints[0].y);
+  const cross = (primaryPoints[1].x - primaryPoints[0].x) * (primaryPoints[2].y - primaryPoints[0].y) - (primaryPoints[1].y - primaryPoints[0].y) * (primaryPoints[2].x - primaryPoints[0].x);
   const area = Math.abs(cross) / 2;
-  const setPoint = (index: number, axis: "x"|"y", value: string) => setPoints((p)=>p.map((point,i)=>i===index?{...point,[axis]:Number(value)||0}:point));
-  return <Card title="Interact · coordinate geometry lab" accent="border-violet-200">
-    <div className="grid grid-cols-3 gap-2 mb-4">{points.map((p,i)=><div key={p.label} className="clay-sm p-2"><p className="font-display font-bold text-sm text-ink mb-1">Point {p.label}</p><div className="flex gap-1"><input aria-label={`${p.label} x`} className={`${inputCls} min-w-0 w-1/2 px-2`} type="number" value={p.x} onChange={(e)=>setPoint(i,"x",e.target.value)}/><input aria-label={`${p.label} y`} className={`${inputCls} min-w-0 w-1/2 px-2`} type="number" value={p.y} onChange={(e)=>setPoint(i,"y",e.target.value)}/></div></div>)}</div>
-    <svg viewBox="0 0 320 180" className="w-full h-48 rounded-xl bg-muted/50" role="img" aria-label="Interactive coordinate triangle"><path d="M30 150H300M40 165V15" stroke="#c9dcc6" strokeWidth="2"/><polygon points={points.map((p)=>`${40+p.x*45},${150-p.y*20}`).join(" ")} fill="#047857" fillOpacity=".12" stroke="#047857" strokeWidth="3"/><line x1={40+points[0].x*45} y1={150-points[0].y*20} x2={40+points[1].x*45} y2={150-points[1].y*20} stroke="#b45309" strokeDasharray="4 4"/><line x1={40+points[0].x*45} y1={150-points[0].y*20} x2={40+points[2].x*45} y2={150-points[2].y*20} stroke="#b45309" strokeDasharray="4 4"/>{points.map((p)=><g key={p.label}><circle cx={40+p.x*45} cy={150-p.y*20} r="7" fill="#b45309"/><text x={40+p.x*45} y={145-p.y*20} textAnchor="middle" fontSize="10" fill="white" fontWeight="700">{p.label}</text></g>)}</svg>
-    <div className="grid grid-cols-3 gap-2 mt-4 text-center"><div className="rounded-xl bg-primary/10 p-3"><Calculator className="w-4 h-4 mx-auto text-primary" aria-hidden/><p className="text-xs text-muted-fg mt-1">distance AB</p><p className="font-display font-black text-primary">{distance.toFixed(2)}</p></div><div className="rounded-xl bg-accent/10 p-3"><CircleDot className="w-4 h-4 mx-auto text-accent" aria-hidden/><p className="text-xs text-muted-fg mt-1">cross product</p><p className="font-display font-black text-accent">{cross}</p></div><div className="rounded-xl bg-ok/10 p-3"><Sigma className="w-4 h-4 mx-auto text-ok" aria-hidden/><p className="text-xs text-muted-fg mt-1">triangle area</p><p className="font-display font-black text-ok">{area}</p></div></div>
+  const maxX = 6;
+  const maxY = 8;
+  const axisX = 42;
+  const axisY = 190;
+  const scaleX = 44;
+  const scaleY = 20;
+  const pointPosition = (point: GeometryPoint) => ({ x: axisX + point.x * scaleX, y: axisY - point.y * scaleY });
+
+  const setPoint = (index: number, axis: "x" | "y", rawValue: string) => {
+    const value = normalizeCoordinateInput(rawValue);
+    const point = points[index];
+    if (!point) return;
+    setDrafts((current) => ({ ...current, [point.label]: { ...current[point.label], [axis]: value } }));
+    if (value === "" || value === "-") return;
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) return;
+    setPoints((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, [axis]: numericValue } : item));
+  };
+
+  const commitPoint = (index: number, axis: "x" | "y") => {
+    const point = points[index];
+    if (!point) return;
+    const rawValue = drafts[point.label]?.[axis] ?? "0";
+    const numericValue = Number(rawValue);
+    const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+    setPoints((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, [axis]: safeValue } : item));
+    setDrafts((current) => ({ ...current, [point.label]: { ...current[point.label], [axis]: String(safeValue) } }));
+  };
+
+  const addPoint = () => {
+    if (points.length >= 6) return;
+    const label = String.fromCharCode(65 + points.length);
+    const point = { label, x: Math.min(maxX, points.length + 1), y: Math.min(maxY, points.length + 1) };
+    setPoints((current) => [...current, point]);
+    setDrafts((current) => ({ ...current, [label]: { x: String(point.x), y: String(point.y) } }));
+  };
+
+  const removeLastPoint = () => {
+    if (points.length <= 3) return;
+    const removed = points[points.length - 1];
+    setPoints((current) => current.slice(0, -1));
+    setDrafts((current) => {
+      const next = { ...current };
+      delete next[removed.label];
+      return next;
+    });
+  };
+
+  return <Card title={<div className="flex flex-wrap items-center justify-between gap-3"><span>Interact · coordinate geometry lab</span><div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={addPoint} disabled={points.length >= 6}><Plus className="h-4 w-4" aria-hidden /> Add point</Button>{points.length > 3 && <Button variant="ghost" onClick={removeLastPoint}><Minus className="h-4 w-4" aria-hidden /> Remove last</Button>}</div></div>} accent="border-violet-200">
+    <p className="mb-4 text-sm leading-relaxed text-muted-fg">Edit the coordinates or add points to explore the plane. Distance, orientation, and area use points A, B, and C; extra points are plotted for comparison.</p>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{points.map((point, index) => <div key={point.label} className="rounded-xl border-2 border-line bg-card p-3"><p className="mb-2 font-display text-sm font-black text-ink">Point {point.label}</p><div className="grid grid-cols-2 gap-2"><Field label="X axis"><input aria-label={`${point.label} x coordinate`} className={`${inputCls} min-w-0 w-full px-2`} type="number" inputMode="decimal" value={drafts[point.label]?.x ?? String(point.x)} onChange={(event) => setPoint(index, "x", event.target.value)} onBlur={() => commitPoint(index, "x")} /></Field><Field label="Y axis"><input aria-label={`${point.label} y coordinate`} className={`${inputCls} min-w-0 w-full px-2`} type="number" inputMode="decimal" value={drafts[point.label]?.y ?? String(point.y)} onChange={(event) => setPoint(index, "y", event.target.value)} onBlur={() => commitPoint(index, "y")} /></Field></div></div>)}</div>
+    <div className="mt-5 overflow-x-auto rounded-xl border-2 border-line bg-slate-50 p-2"><svg viewBox="0 0 360 225" className="min-w-[330px] w-full" role="img" aria-label="Interactive coordinate plane with labeled x and y axes"><title>Interactive coordinate plane</title><line x1="42" y1="190" x2="318" y2="190" stroke="#334155" strokeWidth="2"/><line x1="42" y1="198" x2="42" y2="18" stroke="#334155" strokeWidth="2"/><path d="M318,190 l-7,-4 v8 z" fill="#334155"/><path d="M42,18 l-4,7 h8 z" fill="#334155"/><text x="326" y="214" fontSize="11" fontWeight="700" fill="#1e293b">x-axis</text><text x="14" y="20" fontSize="11" fontWeight="700" fill="#1e293b">y-axis</text>{Array.from({ length: 7 }, (_, index) => <line key={`v-${index}`} x1={42 + index * 44} y1="30" x2={42 + index * 44} y2="190" stroke="#dbe4ed" strokeWidth="1"/>)}{Array.from({ length: 9 }, (_, index) => <line key={`h-${index}`} x1="42" y1={190 - index * 20} x2="306" y2={190 - index * 20} stroke="#dbe4ed" strokeWidth="1"/>)}{primaryPoints.length === 3 && <polygon points={primaryPoints.map((point) => { const position = pointPosition(point); return `${position.x},${position.y}`; }).join(" ")} fill="#2563eb" fillOpacity=".1" stroke="#047857" strokeWidth="3"/>}{points.map((point) => { const position = pointPosition(point); return <g key={point.label}><circle cx={position.x} cy={position.y} r="9" fill="#1d4ed8" stroke="#ffffff" strokeWidth="2"/><text x={position.x} y={position.y + 4} textAnchor="middle" fontSize="10" fill="#ffffff" fontWeight="800">{point.label}</text></g>; })}</svg></div>
+    <div className="mt-4 grid grid-cols-3 gap-2 text-center"><div className="rounded-xl bg-primary/10 p-3"><Calculator className="mx-auto h-4 w-4 text-primary" aria-hidden/><p className="mt-1 text-xs text-muted-fg">distance AB</p><p className="font-display font-black text-primary">{distance.toFixed(2)}</p></div><div className="rounded-xl bg-accent/10 p-3"><CircleDot className="mx-auto h-4 w-4 text-accent" aria-hidden/><p className="mt-1 text-xs text-muted-fg">cross product</p><p className="font-display font-black text-accent">{cross}</p></div><div className="rounded-xl bg-ok/10 p-3"><Sigma className="mx-auto h-4 w-4 text-ok" aria-hidden/><p className="mt-1 text-xs text-muted-fg">triangle area</p><p className="font-display font-black text-ok">{area}</p></div></div>
   </Card>;
 }
 
