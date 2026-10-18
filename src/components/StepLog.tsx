@@ -5,7 +5,26 @@ import { ListChecks } from "lucide-react";
 export function StepLog({ notes, current }: { notes: string[]; current: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.querySelector<HTMLElement>("[data-current]")?.scrollIntoView({ block: "nearest" });
+    const container = ref.current;
+    const activeItem = container?.querySelector<HTMLElement>("[data-current]");
+    if (!container || !activeItem) return;
+
+    // Scroll only the log viewport. scrollIntoView() also scrolls ancestor
+    // containers, which pulls the page away from the visualization above.
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+    const itemBottom = itemRect.bottom - containerRect.top + container.scrollTop;
+    const targetTop = itemBottom - container.clientHeight + 12;
+    const targetBottom = itemRect.top - containerRect.top + container.scrollTop - 12;
+    const nextTop = itemRect.bottom > containerRect.bottom - 12
+      ? targetTop
+      : itemRect.top < containerRect.top + 12
+        ? targetBottom
+        : container.scrollTop;
+
+    if (nextTop !== container.scrollTop) {
+      container.scrollTo({ top: Math.max(0, nextTop), behavior: "smooth" });
+    }
   }, [current]);
 
   if (notes.length === 0)
