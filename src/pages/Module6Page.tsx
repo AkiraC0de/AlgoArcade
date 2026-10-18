@@ -1,5 +1,5 @@
-import { Module6Learn } from "../components/Module6Learn";
+import { Navigate } from "react-router-dom";
 
 export default function Module6Page() {
-  return <Module6Learn />;
+  return <Navigate to="/maxflow" replace />;
 }

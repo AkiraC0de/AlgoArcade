@@ -5,14 +5,16 @@ import {
   Beaker,
   BookOpen,
   GraduationCap,
-  Lock,
+  Hash,
   Network,
   PlayCircle,
   Repeat,
   ScanSearch,
   Search,
   Sparkles,
+  Triangle,
   Trophy,
+  GitBranch,
 } from "lucide-react";
 import { useGameStore } from "../state/gameStore";
 import { CHALLENGES } from "../challenges/challenges";
@@ -39,7 +41,6 @@ export default function Home() {
   const mf = moduleProgress("maxflow", data.challenges);
   const st = moduleProgress("strings", data.challenges);
   const started = mf.done + st.done > 0;
-  const recommended = "/module6";
 
   return (
     <div className="space-y-8">
@@ -58,12 +59,11 @@ export default function Home() {
           Learn Advanced Algorithms <span className="text-primary">by Running Them</span>
         </h1>
         <p className="text-muted-fg text-base sm:text-lg mt-4 max-w-2xl mx-auto leading-relaxed">
-          Feed your own inputs into real algorithm executions, step through every intermediate
-          operation, and check your understanding with exercises. No slides — live traces.
+          Pick a lesson, build the mental model, run the algorithm on your own inputs, and practice with feedback. One clear path from concept to execution.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 mt-7">
           <Link
-            to={recommended}
+            to="/maxflow"
             className="flex items-center gap-2 min-h-12 px-6 py-3 rounded-xl bg-accent text-accent-fg font-display font-bold text-base shadow-clay-sm hover:-translate-y-0.5 active:translate-y-0.5 transition-transform duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <PlayCircle className="w-5 h-5" aria-hidden />
@@ -79,10 +79,10 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Available modules */}
+      {/* Available lessons */}
       <section aria-label="Learning modules">
-        <h2 className="font-display font-bold text-xl text-ink mb-4">Topics in this module</h2>
-        <div className="grid sm:grid-cols-2 gap-5">
+        <h2 className="font-display font-bold text-xl text-ink mb-4">Choose a lesson</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <MotionLink
             to="/maxflow"
             initial={{ opacity: 0, y: 14 }}
@@ -152,6 +152,12 @@ export default function Home() {
               Open topic <ArrowRight className="w-4 h-4" aria-hidden />
             </span>
           </MotionLink>
+
+          {[
+            { to: "/hashing", title: "Hashing", summary: "Keys, slots, and collisions", Icon: Hash, tone: "text-info", surface: "bg-info/10" },
+            { to: "/geometry", title: "Computational Geometry", summary: "Coordinates, turns, and shapes", Icon: Triangle, tone: "text-violet-700", surface: "bg-violet-100" },
+            { to: "/parallel", title: "Parallel Algorithms", summary: "Divide work across processors", Icon: GitBranch, tone: "text-ok", surface: "bg-ok/10" },
+          ].map(({ to, title, summary, Icon, tone, surface }, i) => <MotionLink key={to} to={to} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }} transition={{ duration: 0.3, delay: 0.2 + i * 0.08 }} className="clay clay-pressable p-6 flex flex-col gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"><div className="flex items-center justify-between"><span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${surface} ${tone}`}><Icon className="w-6 h-6" aria-hidden /></span><Badge tone={`${tone} ${surface}`}>Available</Badge></div><h3 className="font-display font-bold text-xl text-ink">{title}</h3><p className="text-sm text-muted-fg leading-relaxed">{summary}. Learn the concept, experiment with it, and solve focused exercises.</p><span className={`mt-auto inline-flex items-center gap-1.5 font-display font-bold text-sm ${tone}`}>Open lesson <ArrowRight className="w-4 h-4" aria-hidden /></span></MotionLink>)}
         </div>
       </section>
 
@@ -177,25 +183,6 @@ export default function Home() {
         </ol>
       </section>
 
-      {/* Full Module 6 learning path */}
-      <section aria-label="Module 6 learning path" className="clay p-6">
-        <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-          <div>
-            <p className="text-xs font-display font-bold uppercase tracking-wide text-primary">Module 6 learning path</p>
-            <h2 className="font-display font-bold text-xl text-ink mt-1">Five topics. One visual-first route.</h2>
-          </div>
-          <Link to="/module6" className="inline-flex items-center gap-2 text-sm font-display font-bold text-primary hover:underline cursor-pointer">Open Learn studio <ArrowRight className="w-4 h-4" aria-hidden /></Link>
-        </div>
-        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {[
-            ["Maximum Flow", "Paths and residual capacity"],
-            ["String Matching", "Compare windows and shifts"],
-            ["Hashing", "Map keys to slots"],
-            ["Computational Geometry", "Turn coordinates into decisions"],
-            ["Parallel Algorithms", "Coordinate many workers"],
-          ].map(([name, desc], i) => <div key={name} className="clay-sm p-4"><span className="font-display font-black text-primary text-sm">0{i + 1}</span><p className="font-display font-bold text-sm text-ink mt-2">{name}</p><p className="text-xs text-muted-fg mt-1 leading-relaxed">{desc}</p></div>)}
-        </div>
-      </section>
 
       <p className="text-center text-xs text-muted-fg">
         Progress is saved in this browser only (LocalStorage) — not synced across devices.
