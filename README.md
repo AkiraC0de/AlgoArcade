@@ -101,11 +101,21 @@ src/
 | Route | Purpose |
 | --- | --- |
 | `/` | Student-focused Home page |
-| `/maxflow` | Maximum Flow lesson, playground, and exercises |
-| `/strings` | String Matching lesson, playground, and exercises |
-| `/hashing` | Hashing lesson, playground, and exercises |
-| `/geometry` | Computational Geometry lesson, playground, and exercises |
-| `/parallel` | Parallel Algorithms lesson, playground, and exercises |
+| `/maxflow/learn` | Maximum Flow learning stages |
+| `/maxflow/playground` | Maximum Flow interactive trace |
+| `/maxflow/exercise` | Maximum Flow exercises |
+| `/strings/learn` | String Matching learning stages |
+| `/strings/playground` | String Matching interactive trace |
+| `/strings/exercise` | String Matching exercises |
+| `/hashing/learn` | Hashing learning stages |
+| `/hashing/playground` | Hashing interactive lab |
+| `/hashing/exercise` | Hashing exercises |
+| `/geometry/learn` | Computational Geometry learning stages |
+| `/geometry/playground` | Computational Geometry interactive lab |
+| `/geometry/exercise` | Computational Geometry exercises |
+| `/parallel/learn` | Parallel Algorithms learning stages |
+| `/parallel/playground` | Parallel Algorithms interactive lab |
+| `/parallel/exercise` | Parallel Algorithms exercises |
 | `/player` | Progress and level journey |
 | `/module6` | Compatibility route for the older Module 6 entry point |
 

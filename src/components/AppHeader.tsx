@@ -5,12 +5,14 @@ import { useGameStore } from "../state/gameStore";
 import { levelFor } from "../storage/schema";
 
 const LESSONS = [
-  { to: "/maxflow", label: "Maximum Flow", description: "Capacities, paths, and bottlenecks", Icon: Network },
-  { to: "/strings", label: "String Matching", description: "Search, compare, and shift", Icon: ScanSearch },
-  { to: "/hashing", label: "Hashing", description: "Keys, slots, and collisions", Icon: Hash },
-  { to: "/geometry", label: "Computational Geometry", description: "Coordinates, turns, and shapes", Icon: Triangle },
-  { to: "/parallel", label: "Parallel Algorithms", description: "Divide work across processors", Icon: GitBranch },
+  { to: "/maxflow/learn", base: "/maxflow", label: "Maximum Flow", description: "Capacities, paths, and bottlenecks", Icon: Network },
+  { to: "/strings/learn", base: "/strings", label: "String Matching", description: "Search, compare, and shift", Icon: ScanSearch },
+  { to: "/hashing/learn", base: "/hashing", label: "Hashing", description: "Keys, slots, and collisions", Icon: Hash },
+  { to: "/geometry/learn", base: "/geometry", label: "Computational Geometry", description: "Coordinates, turns, and shapes", Icon: Triangle },
+  { to: "/parallel/learn", base: "/parallel", label: "Parallel Algorithms", description: "Divide work across processors", Icon: GitBranch },
 ];
+
+const isLessonPath = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
 
 export function AppHeader() {
   const data = useGameStore((s) => s.data);
@@ -18,7 +20,7 @@ export function AppHeader() {
   const level = levelFor(data.progress.xp);
   const [lessonsOpen, setLessonsOpen] = useState(false);
   const lessonsRef = useRef<HTMLDivElement>(null);
-  const lessonActive = LESSONS.some((lesson) => loc.pathname === lesson.to);
+  const lessonActive = LESSONS.some((lesson) => isLessonPath(loc.pathname, lesson.base));
 
   useEffect(() => {
     const closeOnOutsideClick = (event: MouseEvent) => {
@@ -76,8 +78,8 @@ export function AppHeader() {
                   <p className="text-xs uppercase tracking-wide text-primary font-display font-black">Module 6 lessons</p>
                   <p className="text-xs text-muted-fg mt-1">Learn, run, and practice each topic.</p>
                 </div>
-                {LESSONS.map(({ to, label, description, Icon }) => (
-                  <Link key={to} to={to} role="menuitem" onClick={() => setLessonsOpen(false)} className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${loc.pathname === to ? "bg-primary/10" : "hover:bg-muted"}`}>
+                {LESSONS.map(({ to, base, label, description, Icon }) => (
+                  <Link key={to} to={to} role="menuitem" onClick={() => setLessonsOpen(false)} className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${isLessonPath(loc.pathname, base) ? "bg-primary/10" : "hover:bg-muted"}`}>
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="w-4 h-4" aria-hidden /></span>
                     <span><span className="block font-display font-bold text-sm text-ink">{label}</span><span className="block text-xs text-muted-fg mt-0.5">{description}</span></span>
                   </Link>

@@ -16,7 +16,7 @@ export function MaxFlowChallenges() {
       ))}
       <CompletionBanner
         world="maxflow"
-        onNext={() => nav("/strings")}
+        onNext={() => nav("/strings/learn")}
         nextLabel="Continue to String Matching"
       />
     </div>

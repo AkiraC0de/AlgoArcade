@@ -10,11 +10,11 @@ import { TopicGallery, type HomeTopic } from "../components/home/TopicGallery";
 import { TrophyPreview } from "../components/home/TrophyPreview";
 
 const TOPIC_DEFS = [
-  { id: "maxflow", name: "Maximum Flow", to: "/maxflow", summary: "Move capacity through a network", description: "Find paths, push bottlenecks, and understand why the residual graph matters.", Icon: Network, tone: "text-primary", surface: "bg-primary/10" },
-  { id: "strings", name: "String Matching", to: "/strings", summary: "Search smarter, not harder", description: "Compare Naive, Rabin–Karp, and Boyer–Moore with real character-level traces.", Icon: ScanSearch, tone: "text-accent", surface: "bg-accent/10" },
-  { id: "hashing", name: "Hashing", to: "/hashing", summary: "Turn keys into useful locations", description: "Watch characters become hash values, buckets, and collision decisions.", Icon: Hash, tone: "text-info", surface: "bg-info/10" },
-  { id: "geometry", name: "Computational Geometry", to: "/geometry", summary: "Make shapes computable", description: "Use coordinates, orientation, distance, and area to make geometric decisions.", Icon: Triangle, tone: "text-violet-700", surface: "bg-violet-100" },
-  { id: "parallel", name: "Parallel Algorithms", to: "/parallel", summary: "Coordinate many workers", description: "Divide work, respect dependencies, and combine partial results safely.", Icon: GitBranch, tone: "text-ok", surface: "bg-ok/10" },
+  { id: "maxflow", name: "Maximum Flow", to: "/maxflow/learn", summary: "Move capacity through a network", description: "Find paths, push bottlenecks, and understand why the residual graph matters.", Icon: Network, tone: "text-primary", surface: "bg-primary/10" },
+  { id: "strings", name: "String Matching", to: "/strings/learn", summary: "Search smarter, not harder", description: "Compare Naive, Rabin–Karp, and Boyer–Moore with real character-level traces.", Icon: ScanSearch, tone: "text-accent", surface: "bg-accent/10" },
+  { id: "hashing", name: "Hashing", to: "/hashing/learn", summary: "Turn keys into useful locations", description: "Watch characters become hash values, buckets, and collision decisions.", Icon: Hash, tone: "text-info", surface: "bg-info/10" },
+  { id: "geometry", name: "Computational Geometry", to: "/geometry/learn", summary: "Make shapes computable", description: "Use coordinates, orientation, distance, and area to make geometric decisions.", Icon: Triangle, tone: "text-violet-700", surface: "bg-violet-100" },
+  { id: "parallel", name: "Parallel Algorithms", to: "/parallel/learn", summary: "Coordinate many workers", description: "Divide work, respect dependencies, and combine partial results safely.", Icon: GitBranch, tone: "text-ok", surface: "bg-ok/10" },
 ] as const;
 
 function readLessonProgress(): Record<string, number> {

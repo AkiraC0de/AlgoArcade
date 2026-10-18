@@ -1,5 +1,5 @@
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppHeader } from "./components/AppHeader";
 import { SiteFooter } from "./components/SiteFooter";
 import { useGameStore } from "./state/gameStore";
@@ -25,12 +25,27 @@ function AnimatedRoutes() {
       >
         <Routes location={location}>
           <Route path="/" element={<Home />} />
-          <Route path="/strings" element={<StringsPage />} />
-          <Route path="/maxflow" element={<MaxFlowPage />} />
+          <Route path="/strings" element={<Navigate to="/strings/learn" replace />} />
+          <Route path="/strings/learn" element={<StringsPage />} />
+          <Route path="/strings/playground" element={<StringsPage />} />
+          <Route path="/strings/exercise" element={<StringsPage />} />
+          <Route path="/maxflow" element={<Navigate to="/maxflow/learn" replace />} />
+          <Route path="/maxflow/learn" element={<MaxFlowPage />} />
+          <Route path="/maxflow/playground" element={<MaxFlowPage />} />
+          <Route path="/maxflow/exercise" element={<MaxFlowPage />} />
           <Route path="/player" element={<PlayerPage />} />
-          <Route path="/hashing" element={<HashingPage />} />
-          <Route path="/geometry" element={<GeometryPage />} />
-          <Route path="/parallel" element={<ParallelPage />} />
+          <Route path="/hashing" element={<Navigate to="/hashing/learn" replace />} />
+          <Route path="/hashing/learn" element={<HashingPage />} />
+          <Route path="/hashing/playground" element={<HashingPage />} />
+          <Route path="/hashing/exercise" element={<HashingPage />} />
+          <Route path="/geometry" element={<Navigate to="/geometry/learn" replace />} />
+          <Route path="/geometry/learn" element={<GeometryPage />} />
+          <Route path="/geometry/playground" element={<GeometryPage />} />
+          <Route path="/geometry/exercise" element={<GeometryPage />} />
+          <Route path="/parallel" element={<Navigate to="/parallel/learn" replace />} />
+          <Route path="/parallel/learn" element={<ParallelPage />} />
+          <Route path="/parallel/playground" element={<ParallelPage />} />
+          <Route path="/parallel/exercise" element={<ParallelPage />} />
           <Route path="/module6" element={<Module6Page />} />
         </Routes>
       </motion.div>

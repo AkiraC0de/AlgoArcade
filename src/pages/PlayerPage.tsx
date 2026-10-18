@@ -8,11 +8,11 @@ import { Button, Card } from "../components/ui";
 import { TOPIC_CHALLENGES } from "../data/topicChallenges";
 
 const TOPICS = [
-  { id: "maxflow", name: "Maximum Flow", Icon: Network, to: "/maxflow", tone: "primary", description: "Paths, capacities, and bottlenecks" },
-  { id: "strings", name: "String Matching", Icon: ScanSearch, to: "/strings", tone: "accent", description: "Compare, hash, and skip through text" },
-  { id: "hashing", name: "Hashing", Icon: Gem, to: "/hashing", tone: "info", description: "Keys, buckets, and collisions" },
-  { id: "geometry", name: "Computational Geometry", Icon: Target, to: "/geometry", tone: "violet", description: "Coordinates, turns, and shapes" },
-  { id: "parallel", name: "Parallel Algorithms", Icon: Zap, to: "/parallel", tone: "ok", description: "Divide work and combine results" },
+  { id: "maxflow", name: "Maximum Flow", Icon: Network, to: "/maxflow/learn", tone: "primary", description: "Paths, capacities, and bottlenecks" },
+  { id: "strings", name: "String Matching", Icon: ScanSearch, to: "/strings/learn", tone: "accent", description: "Compare, hash, and skip through text" },
+  { id: "hashing", name: "Hashing", Icon: Gem, to: "/hashing/learn", tone: "info", description: "Keys, buckets, and collisions" },
+  { id: "geometry", name: "Computational Geometry", Icon: Target, to: "/geometry/learn", tone: "violet", description: "Coordinates, turns, and shapes" },
+  { id: "parallel", name: "Parallel Algorithms", Icon: Zap, to: "/parallel/learn", tone: "ok", description: "Divide work and combine results" },
 ] as const;
 
 const toneStyles = {
