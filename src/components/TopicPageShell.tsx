@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { BookOpen, FlaskConical, ListChecks } from "lucide-react";
 import { Badge } from "./ui";
 import { TopicLesson } from "./TopicLesson";
@@ -23,6 +23,6 @@ export function TopicPageShell({ topic, title, description, playground }: { topi
   return <div className="space-y-5">
     <div><div className="flex flex-wrap items-center gap-3"><h1 className="font-display font-black text-2xl text-ink">{title}</h1><Badge tone="text-primary bg-primary/10">Module 6</Badge></div><p className="text-muted-fg font-body text-sm max-w-2xl mt-2">{description}</p></div>
     <div className="flex flex-wrap gap-1.5" role="tablist" aria-label={`${title} sections`}>{tabs.map(({id,label,Icon})=><button key={id} role="tab" aria-selected={tab===id} onClick={()=>setTab(id)} className={`inline-flex items-center gap-2 min-h-11 px-4 rounded-xl font-display font-bold text-sm cursor-pointer border-2 transition-colors ${tab===id?"bg-primary text-white border-primary shadow-clay-sm":"bg-card text-muted-fg border-line hover:border-primary/40"}`}><Icon className="w-4 h-4" aria-hidden/>{label}</button>)}</div>
-    <AnimatePresence mode="wait"><motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-6}} transition={{duration:.16}} role="tabpanel">{tab === "learn" ? (topic === "maxflow" ? <MaxFlowLesson /> : topic === "strings" ? <StringLesson /> : topic === "hashing" ? <HashingLesson /> : topic === "geometry" ? <GeometryLesson /> : topic === "parallel" ? <ParallelLesson /> : <TopicLesson topic={topic}/>) : tab === "playground" ? playground : <TopicExercises topic={topic}/>}</motion.div></AnimatePresence>
+    <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:.16}} role="tabpanel">{tab === "learn" ? (topic === "maxflow" ? <MaxFlowLesson /> : topic === "strings" ? <StringLesson /> : topic === "hashing" ? <HashingLesson /> : topic === "geometry" ? <GeometryLesson /> : topic === "parallel" ? <ParallelLesson /> : <TopicLesson topic={topic}/>) : tab === "playground" ? playground : <TopicExercises topic={topic}/>}</motion.div>
   </div>;
 }

@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { motion } from "motion/react";
-import { Calculator, CircleDot, Cpu, GitBranch, RotateCcw, Sigma } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowRight, Calculator, CheckCircle2, CircleDot, Play, RotateCcw, Sigma } from "lucide-react";
 import { Button, Card, Field, inputCls } from "./ui";
 import type { TopicId } from "../data/module6Lessons";
 
@@ -85,16 +85,82 @@ function GeometryLab() {
   </Card>;
 }
 
+type ParallelMode = "data" | "task" | "pipeline";
+type ParallelLane = { id: number; start: number; end: number; count: number };
+
+const PARALLEL_MODES: Array<{ id: ParallelMode; number: string; title: string; description: string }> = [
+  { id: "data", number: "01", title: "Data parallelism", description: "One operation across separate data ranges." },
+  { id: "task", number: "02", title: "Task parallelism", description: "Different jobs running at the same time." },
+  { id: "pipeline", number: "03", title: "Pipeline parallelism", description: "Different stages overlap across data batches." },
+];
+
+const TASKS = [
+  { title: "Sales Summary", detail: "totals and trends" },
+  { title: "Customer Data", detail: "segments and behavior" },
+  { title: "Product Report", detail: "catalog performance" },
+  { title: "Charts", detail: "visual report output" },
+];
+
+const PIPELINE_STAGES = [
+  { title: "Collect Sales Data", detail: "gather records" },
+  { title: "Process Data", detail: "clean and aggregate" },
+  { title: "Analyze Data", detail: "find patterns" },
+  { title: "Generate Report", detail: "publish results" },
+];
+
+const formatNumber = (value: number) => new Intl.NumberFormat("en-US").format(value);
+
 function ParallelLab() {
+  const [mode, setMode] = useState<ParallelMode>("data");
   const [workers, setWorkers] = useState(4);
-  const [records, setRecords] = useState(1000);
-  const lanes = useMemo(()=>Array.from({length:workers},(_,i)=>({id:i+1, work:Math.ceil(records/workers)+(i<records%workers?1:0)})),[workers,records]);
-  const serial = records;
-  const parallel = Math.max(...lanes.map((l)=>l.work));
-  return <Card title="Interact · parallel work simulator" accent="border-ok/30">
-    <div className="flex flex-wrap gap-3 items-end"><Field label="Workers"><input className={`${inputCls} w-28`} type="number" min="1" max="8" value={workers} onChange={(e)=>setWorkers(Math.min(8,Math.max(1,Number(e.target.value)||1)))}/></Field><Field label="Records"><input className={`${inputCls} w-32`} type="number" min="1" max="10000" value={records} onChange={(e)=>setRecords(Math.min(10000,Math.max(1,Number(e.target.value)||1)))}/></Field><Button variant="ghost" onClick={()=>{setWorkers(4);setRecords(1000)}}><RotateCcw className="w-4 h-4" aria-hidden/> Reset</Button></div>
-    <div className="space-y-2 mt-5">{lanes.map((lane,i)=><div key={lane.id} className="flex items-center gap-3"><span className="w-20 text-xs font-display font-bold text-muted-fg">worker {lane.id}</span><div className="h-6 flex-1 bg-muted rounded-lg overflow-hidden"><motion.div initial={{width:0}} animate={{width:`${(lane.work/serial)*100}%`}} className={`h-full rounded-lg ${i%2===0?"bg-primary":"bg-secondary"}`}/></div><span className="w-20 text-xs font-mono text-right">{lane.work}</span></div>)}</div>
-    <div className="grid grid-cols-2 gap-3 mt-5"><div className="rounded-xl bg-muted p-4"><Cpu className="w-4 h-4 text-muted-fg" aria-hidden/><p className="text-xs text-muted-fg mt-1">sequential units</p><p className="font-display font-black text-xl text-ink">{serial}</p></div><div className="rounded-xl bg-primary/10 p-4"><GitBranch className="w-4 h-4 text-primary" aria-hidden/><p className="text-xs text-muted-fg mt-1">longest parallel lane</p><p className="font-display font-black text-xl text-primary">{parallel}</p></div></div>
-    <p className="text-xs text-muted-fg mt-3">This is a scheduling simulation for learning—not a measurement of real hardware performance.</p>
+  const [records, setRecords] = useState(1_000_000);
+  const [runId, setRunId] = useState(0);
+  const [hasRun, setHasRun] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const reducedMotion = useReducedMotion() ?? false;
+  const lanes = useMemo<ParallelLane[]>(() => {
+    const chunkSize = Math.ceil(records / workers);
+    return Array.from({ length: workers }, (_, index) => {
+      const start = index * chunkSize + 1;
+      const end = Math.min(records, (index + 1) * chunkSize);
+      return { id: index + 1, start, end, count: Math.max(0, end - start + 1) };
+    });
+  }, [records, workers]);
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const duration = mode === "data" ? 3_200 : mode === "task" ? 4_000 : 5_400;
+    const timer = window.setTimeout(() => setIsRunning(false), duration);
+    return () => window.clearTimeout(timer);
+  }, [isRunning, mode, runId]);
+
+  const selectMode = (nextMode: ParallelMode) => {
+    setMode(nextMode);
+    setHasRun(false);
+    setIsRunning(false);
+    setRunId((value) => value + 1);
+  };
+  const runAnimation = () => { setRunId((value) => value + 1); setHasRun(true); setIsRunning(true); };
+  const reset = () => { setWorkers(4); setRecords(1_000_000); setHasRun(false); setIsRunning(false); setRunId((value) => value + 1); };
+  const activeMode = PARALLEL_MODES.find((item) => item.id === mode)!;
+
+  return <Card title="Interact · parallel algorithm studio" accent="border-ok/30">
+    <div className="mb-5"><p className="text-sm leading-relaxed text-muted-fg">Choose a parallel strategy, then run the animation to see what is shared—and what is different—between processors.</p><div className="mt-4 grid gap-2 md:grid-cols-3" role="tablist" aria-label="Parallel algorithm types">{PARALLEL_MODES.map((item) => <button key={item.id} type="button" role="tab" aria-selected={mode === item.id} onClick={() => selectMode(item.id)} className={`rounded-xl border-2 p-3 text-left transition-colors ${mode === item.id ? "border-primary bg-primary/10 text-primary shadow-clay-sm" : "border-line bg-card text-muted-fg hover:border-primary/40"}`}><span className="font-display text-[11px] font-black tracking-[0.18em]">{item.number}</span><span className="mt-1 block font-display text-sm font-black">{item.title}</span><span className="mt-1 block text-xs leading-relaxed">{item.description}</span></button>)}</div></div>
+    <div className="flex flex-wrap items-end gap-3 rounded-xl bg-muted/60 p-3">{mode === "data" ? <><Field label="Processors"><input className={`${inputCls} w-28`} type="number" min="1" max="8" value={workers} onChange={(event) => setWorkers(Math.min(8, Math.max(1, Number(event.target.value) || 1)))} /></Field><Field label="Sales records"><input className={`${inputCls} w-36`} type="number" min="1" max="10000000" value={records} onChange={(event) => setRecords(Math.min(10_000_000, Math.max(1, Number(event.target.value) || 1)))} /></Field></> : <div className="min-h-11 flex-1"><p className="text-xs font-display font-black uppercase tracking-wide text-muted-fg">{mode === "task" ? "Fixed work split" : "Fixed stage split"}</p><p className="mt-1 text-sm font-display font-bold text-ink">{mode === "task" ? "4 processors · 4 different report jobs" : "4 stages · 3 report batches in flight"}</p></div>}<Button variant="accent" onClick={runAnimation}><Play className="w-4 h-4" aria-hidden /> {isRunning ? "Running…" : "Run animation"}</Button><Button variant="ghost" onClick={reset}><RotateCcw className="w-4 h-4" aria-hidden /> Reset</Button></div>
+    <div className="mt-4 flex items-start justify-between gap-3 rounded-xl border-2 border-line bg-card p-3" aria-live="polite"><div><p className="font-display text-sm font-black text-ink">{activeMode.number} · {activeMode.title}</p><p className="mt-1 text-xs leading-relaxed text-muted-fg">{mode === "data" ? "Every processor performs the same calculation on a different range." : mode === "task" ? "Every processor performs a different report task at the same time." : "Each stage works on a different batch while the next batch enters behind it."}</p></div><span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-display font-black ${isRunning ? "bg-accent/15 text-accent" : hasRun ? "bg-ok/15 text-ok" : "bg-muted text-muted-fg"}`}>{isRunning ? "Animating" : hasRun ? "Complete" : "Ready"}</span></div>
+    <motion.div key={`${mode}-${runId}`} initial={reducedMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : 0.22 }} className="mt-5">{mode === "data" && <DataParallelView lanes={lanes} hasRun={hasRun} runId={runId} reducedMotion={reducedMotion} />}{mode === "task" && <TaskParallelView hasRun={hasRun} runId={runId} reducedMotion={reducedMotion} />}{mode === "pipeline" && <PipelineParallelView hasRun={hasRun} runId={runId} reducedMotion={reducedMotion} />}</motion.div>
   </Card>;
+}
+
+function DataParallelView({ lanes, hasRun, runId, reducedMotion }: { lanes: ParallelLane[]; hasRun: boolean; runId: number; reducedMotion: boolean }) {
+  return <div><div className="mb-3 flex items-center justify-between"><p className="font-display text-sm font-black text-ink">Calculating total sales</p><span className="text-xs font-mono text-muted-fg">same operation × {lanes.length}</span></div><div className="space-y-2">{lanes.map((lane, index) => <div key={lane.id} className="rounded-xl border-2 border-line bg-card p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div><span className="font-display text-sm font-black text-ink">Processor {lane.id}</span><span className="ml-2 text-xs text-muted-fg">records {formatNumber(lane.start)}–{formatNumber(lane.end)}</span></div><span className="text-xs font-mono text-muted-fg">{formatNumber(lane.count)} rows</span></div><div className="mt-2 h-3 overflow-hidden rounded-full bg-muted"><motion.div key={`data-${runId}-${lane.id}`} initial={{ scaleX: 0 }} animate={{ scaleX: hasRun ? 1 : 0 }} style={{ originX: 0 }} transition={{ duration: reducedMotion ? 0 : 1.7, delay: reducedMotion ? 0 : index * 0.12, ease: "easeInOut" }} className={`h-full rounded-full ${index % 2 === 0 ? "bg-primary" : "bg-secondary"}`} /></div><p className="mt-2 text-[11px] font-display font-bold uppercase tracking-wide text-muted-fg">same instruction · sum this range</p></div>)}</div><div className="mt-3 flex items-center gap-2 text-xs text-muted-fg"><CheckCircle2 className="h-4 w-4 text-ok" aria-hidden /> The data is divided; the operation stays the same.</div></div>;
+}
+
+function TaskParallelView({ hasRun, runId, reducedMotion }: { hasRun: boolean; runId: number; reducedMotion: boolean }) {
+  return <div><div className="mb-3 flex items-center justify-between"><p className="font-display text-sm font-black text-ink">Business report work queue</p><span className="text-xs font-mono text-muted-fg">different task × 4</span></div><div className="grid gap-2 sm:grid-cols-2">{TASKS.map((task, index) => <div key={task.title} className="rounded-xl border-2 border-line bg-card p-3"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-display text-sm font-black text-primary">P{index + 1}</div><div className="min-w-0"><p className="font-display text-sm font-black text-ink">{task.title}</p><p className="mt-0.5 text-xs text-muted-fg">{task.detail}</p></div></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-muted"><motion.div key={`task-${runId}-${index}`} initial={{ scaleX: 0 }} animate={{ scaleX: hasRun ? 1 : 0 }} style={{ originX: 0 }} transition={{ duration: reducedMotion ? 0 : 1.9, delay: reducedMotion ? 0 : index * 0.16, ease: "easeOut" }} className="h-full rounded-full bg-accent" /></div><p className="mt-2 text-[11px] font-display font-bold uppercase tracking-wide text-muted-fg">processor {index + 1} works independently</p></div>)}</div><div className="mt-3 flex items-center gap-2 text-xs text-muted-fg"><CheckCircle2 className="h-4 w-4 text-ok" aria-hidden /> The processors receive different jobs and run them concurrently.</div></div>;
+}
+
+function PipelineParallelView({ hasRun, runId, reducedMotion }: { hasRun: boolean; runId: number; reducedMotion: boolean }) {
+  const batches = [1, 2, 3];
+  return <div><div className="mb-3 flex items-center justify-between"><p className="font-display text-sm font-black text-ink">Sales report pipeline</p><span className="text-xs font-mono text-muted-fg">stages overlap</span></div><div className="grid gap-2 md:grid-cols-4">{PIPELINE_STAGES.map((stage, index) => <div key={stage.title} className="relative rounded-xl border-2 border-line bg-card p-3"><div className="flex items-center gap-2"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-display font-black text-white">{index + 1}</span><p className="font-display text-sm font-black leading-tight text-ink">{stage.title}</p></div><p className="mt-2 text-xs text-muted-fg">{stage.detail}</p><div className="mt-3 h-2 overflow-hidden rounded-full bg-muted"><motion.div key={`stage-${runId}-${index}`} initial={{ scaleX: 0 }} animate={{ scaleX: hasRun ? 1 : 0 }} style={{ originX: 0 }} transition={{ duration: reducedMotion ? 0 : 1.35, delay: reducedMotion ? 0 : index * 0.32, ease: "easeInOut" }} className="h-full rounded-full bg-primary" /></div>{index < PIPELINE_STAGES.length - 1 && <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 text-accent md:block" aria-hidden />}</div>)}</div><div className="mt-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 p-3"><div className="mb-2 flex items-center justify-between"><p className="font-display text-xs font-black uppercase tracking-wide text-accent">Batches moving through the stages</p><span className="text-xs text-muted-fg">collect → process → analyze → report</span></div><div className="relative h-9 overflow-hidden rounded-lg bg-card"><div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3 text-[10px] font-display font-black uppercase tracking-wide text-muted-fg"><span>input</span><span>output</span></div>{batches.map((batch, index) => <motion.div key={`batch-${runId}-${batch}`} initial={{ left: "-12%", opacity: 0 }} animate={hasRun ? { left: "92%", opacity: [0, 1, 1, 0] } : { left: "-12%", opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 3.4, delay: reducedMotion ? 0 : index * 0.65, ease: "linear" }} className="absolute top-1/2 z-10 flex h-6 w-16 -translate-y-1/2 items-center justify-center rounded-md bg-secondary text-[10px] font-display font-black text-white">batch {batch}</motion.div>)}</div></div><div className="mt-3 flex items-center gap-2 text-xs text-muted-fg"><CheckCircle2 className="h-4 w-4 text-ok" aria-hidden /> Multiple batches can occupy different stages at the same time.</div></div>;
 }
