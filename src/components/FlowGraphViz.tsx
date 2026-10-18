@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Search, Zap, Ban } from "lucide-react";
 import type { FlowGraph, MaxFlowStep } from "../engine/maxflow/fordFulkerson";
@@ -26,11 +27,32 @@ export function FlowGraphViz({
   const NODE_R = 18;
 
   const activePath = step?.path ?? [];
+  const [animatedEdgeIndex, setAnimatedEdgeIndex] = useState(0);
+
+  useEffect(() => {
+    setAnimatedEdgeIndex(0);
+    if (!step || step.kind !== "push" || activePath.length < 2) return;
+    const timers: number[] = [];
+    activePath.slice(1).forEach((_, index) => {
+      timers.push(window.setTimeout(() => setAnimatedEdgeIndex(index), index * 850));
+    });
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [step?.kind, step?.iteration, activePath.join("->")]);
+
   const activeEdges = new Set<string>();
-  for (let i = 0; i < activePath.length - 1; i++) {
-    activeEdges.add(`${activePath[i]}->${activePath[i + 1]}`);
-    activeEdges.add(`${activePath[i + 1]}->${activePath[i]}`);
+  const visibleEdgeIndex = step?.kind === "push" ? animatedEdgeIndex : activePath.length - 2;
+  if (activePath.length >= 2 && visibleEdgeIndex >= 0) {
+    const from = activePath[visibleEdgeIndex];
+    const to = activePath[visibleEdgeIndex + 1];
+    if (from && to) {
+      activeEdges.add(`${from}->${to}`);
+      activeEdges.add(`${to}->${from}`);
+    }
   }
+
+  const animatedSegment = step?.kind === "push" && activePath.length >= 2
+    ? `${activePath[animatedEdgeIndex]} → ${activePath[animatedEdgeIndex + 1]}`
+    : null;
 
   return (
     <div className="overflow-x-auto">
@@ -74,7 +96,8 @@ export function FlowGraphViz({
                 initial={false}
                 animate={{
                   stroke: isActive ? ACTIVE_EDGE : flow > 0 ? FLOW_EDGE : IDLE_EDGE,
-                  strokeWidth: isActive ? 3 : 2,
+                  strokeWidth: isActive ? 4 : 2,
+                  opacity: isActive ? 1 : activePath.length > 1 && step?.kind === "push" ? 0.72 : 1,
                 }}
                 transition={{ duration: 0.25 }}
                 markerEnd={isActive ? "url(#arrowActive)" : flow > 0 ? "url(#arrowFlow)" : "url(#arrow)"}
@@ -220,6 +243,16 @@ export function FlowGraphViz({
               <span className="inline-flex items-center gap-1.5 text-ok font-bold">
                 <Zap className="w-4 h-4" aria-hidden /> Pushed {step.bottleneck} unit(s) along {step.path?.join(" → ")}
               </span>
+            )}
+            {animatedSegment && (
+              <motion.span
+                key={animatedSegment}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="inline-flex items-center rounded-lg bg-amber-50 px-2.5 py-1 font-display text-xs font-black text-amber-800"
+              >
+                Current edge: {animatedSegment}
+              </motion.span>
             )}
             {step.kind === "no-path" && (
               <span className="inline-flex items-center gap-1.5 text-danger font-bold">
