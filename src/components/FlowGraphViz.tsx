@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Search, Zap, Ban } from "lucide-react";
 import type { FlowGraph, MaxFlowStep } from "../engine/maxflow/fordFulkerson";
@@ -29,21 +29,25 @@ export function FlowGraphViz({
   const activePath = step?.path ?? [];
   const [animatedEdgeIndex, setAnimatedEdgeIndex] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setAnimatedEdgeIndex(0);
     if (!step || step.kind !== "push" || activePath.length < 2) return;
     const timers: number[] = [];
     activePath.slice(1).forEach((_, index) => {
-      timers.push(window.setTimeout(() => setAnimatedEdgeIndex(index), index * 850));
+      timers.push(window.setTimeout(() => setAnimatedEdgeIndex(index), (index + 1) * 850));
     });
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [step?.kind, step?.iteration, activePath.join("->")]);
 
   const activeEdges = new Set<string>();
-  const visibleEdgeIndex = step?.kind === "push" ? animatedEdgeIndex : activePath.length - 2;
-  if (activePath.length >= 2 && visibleEdgeIndex >= 0) {
-    const from = activePath[visibleEdgeIndex];
-    const to = activePath[visibleEdgeIndex + 1];
+  // Start at the source edge and accumulate each segment as it is revealed.
+  // Showing only the final segment made S → A → T appear to begin at A → T.
+  const visibleEdgeIndex = activePath.length >= 2
+    ? step?.kind === "push" ? animatedEdgeIndex : 0
+    : -1;
+  for (let index = 0; index <= visibleEdgeIndex; index += 1) {
+    const from = activePath[index];
+    const to = activePath[index + 1];
     if (from && to) {
       activeEdges.add(`${from}->${to}`);
       activeEdges.add(`${to}->${from}`);
@@ -51,7 +55,7 @@ export function FlowGraphViz({
   }
 
   const animatedSegment = step?.kind === "push" && activePath.length >= 2
-    ? `${activePath[animatedEdgeIndex]} → ${activePath[animatedEdgeIndex + 1]}`
+    ? `${activePath[Math.min(animatedEdgeIndex, activePath.length - 2)]} → ${activePath[Math.min(animatedEdgeIndex + 1, activePath.length - 1)]}`
     : null;
 
   return (
@@ -97,7 +101,7 @@ export function FlowGraphViz({
                 animate={{
                   stroke: isActive ? ACTIVE_EDGE : flow > 0 ? FLOW_EDGE : IDLE_EDGE,
                   strokeWidth: isActive ? 4 : 2,
-                  opacity: isActive ? 1 : activePath.length > 1 && step?.kind === "push" ? 0.72 : 1,
+                  opacity: isActive ? 1 : activePath.length > 1 && (step?.kind === "path" || step?.kind === "push") ? 0.72 : 1,
                 }}
                 transition={{ duration: 0.25 }}
                 markerEnd={isActive ? "url(#arrowActive)" : flow > 0 ? "url(#arrowFlow)" : "url(#arrow)"}
