@@ -39,7 +39,7 @@ export default function Home() {
   const mf = moduleProgress("maxflow", data.challenges);
   const st = moduleProgress("strings", data.challenges);
   const started = mf.done + st.done > 0;
-  const recommended = mf.done === 0 ? "/maxflow" : st.done === 0 ? "/strings" : "/player";
+  const recommended = "/module6";
 
   return (
     <div className="space-y-8">
@@ -177,19 +177,24 @@ export default function Home() {
         </ol>
       </section>
 
-      {/* Not covered in the course document */}
-      <section aria-label="Topics not covered" className="grid sm:grid-cols-3 gap-4">
-        {["Hashing", "Computational Geometry", "Parallel Algorithms"].map((name) => (
-          <div key={name} className="rounded-2xl border-2 border-dashed border-line bg-muted/50 p-5 flex items-start gap-3">
-            <Lock className="w-5 h-5 text-muted-fg shrink-0 mt-0.5" aria-hidden />
-            <div>
-              <p className="font-display font-bold text-sm text-muted-fg">{name}</p>
-              <p className="text-xs text-muted-fg mt-1 leading-relaxed">
-                Not covered in the Module 6 course document — unlocks when material is provided.
-              </p>
-            </div>
+      {/* Full Module 6 learning path */}
+      <section aria-label="Module 6 learning path" className="clay p-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+          <div>
+            <p className="text-xs font-display font-bold uppercase tracking-wide text-primary">Module 6 learning path</p>
+            <h2 className="font-display font-bold text-xl text-ink mt-1">Five topics. One visual-first route.</h2>
           </div>
-        ))}
+          <Link to="/module6" className="inline-flex items-center gap-2 text-sm font-display font-bold text-primary hover:underline cursor-pointer">Open Learn studio <ArrowRight className="w-4 h-4" aria-hidden /></Link>
+        </div>
+        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {[
+            ["Maximum Flow", "Paths and residual capacity"],
+            ["String Matching", "Compare windows and shifts"],
+            ["Hashing", "Map keys to slots"],
+            ["Computational Geometry", "Turn coordinates into decisions"],
+            ["Parallel Algorithms", "Coordinate many workers"],
+          ].map(([name, desc], i) => <div key={name} className="clay-sm p-4"><span className="font-display font-black text-primary text-sm">0{i + 1}</span><p className="font-display font-bold text-sm text-ink mt-2">{name}</p><p className="text-xs text-muted-fg mt-1 leading-relaxed">{desc}</p></div>)}
+        </div>
       </section>
 
       <p className="text-center text-xs text-muted-fg">

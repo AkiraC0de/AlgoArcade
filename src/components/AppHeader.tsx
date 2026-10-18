@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, GraduationCap, Home, Network, ScanSearch, Zap } from "lucide-react";
+import { BookOpen, GraduationCap, Home, Network, ScanSearch, Zap, Layers3 } from "lucide-react";
 import { useGameStore } from "../state/gameStore";
 import { levelFor } from "../storage/schema";
 
 const NAV = [
   { to: "/", label: "Home", Icon: Home },
+  { to: "/module6", label: "Module 6 Learn", Icon: Layers3 },
   { to: "/strings", label: "String Matching", Icon: ScanSearch },
   { to: "/maxflow", label: "Maximum Flow", Icon: Network },
   { to: "/player", label: "Progress", Icon: GraduationCap },

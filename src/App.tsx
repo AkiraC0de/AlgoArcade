@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import StringsPage from "./pages/strings/StringsPage";
 import MaxFlowPage from "./pages/maxflow/MaxFlowPage";
 import PlayerPage from "./pages/PlayerPage";
+import Module6Page from "./pages/Module6Page";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -23,6 +24,7 @@ function AnimatedRoutes() {
           <Route path="/strings" element={<StringsPage />} />
           <Route path="/maxflow" element={<MaxFlowPage />} />
           <Route path="/player" element={<PlayerPage />} />
+          <Route path="/module6" element={<Module6Page />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
