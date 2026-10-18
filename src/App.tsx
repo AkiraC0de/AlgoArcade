@@ -2,7 +2,7 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppHeader } from "./components/AppHeader";
 import { useGameStore } from "./state/gameStore";
-import Home from "./pages/Home";
+import Home from "./pages/HomeRefactored";
 import StringsPage from "./pages/strings/StringsPage";
 import MaxFlowPage from "./pages/maxflow/MaxFlowPage";
 import PlayerPage from "./pages/PlayerPage";

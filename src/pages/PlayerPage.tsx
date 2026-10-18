@@ -1,151 +1,55 @@
-import { useGameStore } from "../state/gameStore";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { AlertTriangle, BookOpen, Network, ScanSearch, Settings, Trophy, Zap } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Crown, Gem, Medal, Network, ScanSearch, Settings, ShieldCheck, Sparkles, Star, Target, Trophy, Zap } from "lucide-react";
+import { useGameStore } from "../state/gameStore";
 import { levelFor, xpIntoLevel, XP_PER_LEVEL } from "../storage/schema";
-import { Button, Card, ProgressBar, Stars } from "../components/ui";
+import { Button, Card } from "../components/ui";
 import { CHALLENGES } from "../challenges/challenges";
+
+const TOPICS = [
+  { id: "maxflow", name: "Maximum Flow", Icon: Network, to: "/maxflow", tone: "primary", description: "Paths, capacities, and bottlenecks" },
+  { id: "strings", name: "String Matching", Icon: ScanSearch, to: "/strings", tone: "accent", description: "Compare, hash, and skip through text" },
+  { id: "hashing", name: "Hashing", Icon: Gem, to: "/hashing", tone: "info", description: "Keys, buckets, and collisions" },
+  { id: "geometry", name: "Computational Geometry", Icon: Target, to: "/geometry", tone: "violet", description: "Coordinates, turns, and shapes" },
+  { id: "parallel", name: "Parallel Algorithms", Icon: Zap, to: "/parallel", tone: "ok", description: "Divide work and combine results" },
+] as const;
+
+const toneStyles = {
+  primary: { icon: "bg-primary/15 text-primary", line: "bg-primary", soft: "bg-primary/10 text-primary", border: "border-primary/30" },
+  accent: { icon: "bg-accent/15 text-accent", line: "bg-accent", soft: "bg-accent/10 text-accent", border: "border-accent/30" },
+  info: { icon: "bg-info/15 text-info", line: "bg-info", soft: "bg-info/10 text-info", border: "border-info/30" },
+  violet: { icon: "bg-violet-100 text-violet-700", line: "bg-violet-500", soft: "bg-violet-100 text-violet-700", border: "border-violet-200" },
+  ok: { icon: "bg-ok/15 text-ok", line: "bg-ok", soft: "bg-ok/10 text-ok", border: "border-ok/30" },
+} as const;
+
+type TopicId = typeof TOPICS[number]["id"];
+type TopicStats = { total: number; done: number; stars: number };
 
 export default function PlayerPage() {
   const data = useGameStore((s) => s.data);
   const resetAll = useGameStore((s) => s.resetAll);
   const updateSettings = useGameStore((s) => s.updateSettings);
   const nav = useNavigate();
-
   const level = levelFor(data.progress.xp);
   const into = xpIntoLevel(data.progress.xp);
   const totalChallenges = CHALLENGES.length;
-  const completed = Object.values(data.challenges).filter((c) => c.stars > 0).length;
-  const totalStars = Object.values(data.challenges).reduce((s, c) => s + c.stars, 0);
+  const completed = Object.values(data.challenges).filter((challenge) => challenge.stars > 0).length;
+  const totalStars = Object.values(data.challenges).reduce((sum, challenge) => sum + challenge.stars, 0);
+  const masteryPercent = totalChallenges > 0 ? Math.round((completed / totalChallenges) * 100) : 0;
+  const topicStats = useMemo(() => Object.fromEntries(TOPICS.map((topic) => { const list = CHALLENGES.filter((challenge) => challenge.world === topic.id); const done = list.filter((challenge) => (data.challenges[challenge.id]?.stars ?? 0) > 0); return [topic.id, { total: list.length, done: done.length, stars: done.reduce((sum, challenge) => sum + (data.challenges[challenge.id]?.stars ?? 0), 0) }]; })), [data.challenges]);
+  const nextTopic = TOPICS.find((topic) => { const stats = topicStats[topic.id as TopicId] as TopicStats; return stats.done < stats.total; }) ?? TOPICS[0];
+  const nextStats = topicStats[nextTopic.id as TopicId] as TopicStats;
+  const tier = level >= 5 ? "Master Navigator" : level >= 3 ? "Algorithm Explorer" : "First Ascent";
 
-  const moduleStats = (world: "strings" | "maxflow") => {
-    const list = CHALLENGES.filter((c) => c.world === world);
-    const done = list.filter((c) => (data.challenges[c.id]?.stars ?? 0) > 0);
-    return { total: list.length, done: done.length, stars: done.reduce((s, c) => s + (data.challenges[c.id]?.stars ?? 0), 0) };
-  };
-  const mf = moduleStats("maxflow");
-  const st = moduleStats("strings");
-
-  return (
-    <div className="space-y-5">
-      <h1 className="font-display font-bold text-2xl text-ink">Your progress</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Level / XP card — adapted from 21st.dev "Progress Card" pattern */}
-        <Card title="Level & XP" accent="border-primary/40">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 font-display font-bold text-primary text-lg">
-                <Zap className="w-5 h-5" aria-hidden /> Level {level}
-              </span>
-              <span className="font-body text-sm text-muted-fg">{into}/{XP_PER_LEVEL} XP to next level</span>
-            </div>
-            <ProgressBar value={into} max={XP_PER_LEVEL} label="XP progress to next level" />
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="clay-sm p-3">
-                <p className="font-display font-bold text-xl text-primary">{data.progress.xp}</p>
-                <p className="text-xs text-muted-fg font-body">Total XP</p>
-              </div>
-              <div className="clay-sm p-3">
-                <p className="font-display font-bold text-xl text-ok">{completed}/{totalChallenges}</p>
-                <p className="text-xs text-muted-fg font-body">Exercises</p>
-              </div>
-              <div className="clay-sm p-3">
-                <p className="font-display font-bold text-xl text-amber-500">{totalStars}</p>
-                <p className="text-xs text-muted-fg font-body">Stars earned</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Module breakdown */}
-        <Card title="Module breakdown" accent="border-ok/40">
-          <div className="space-y-4">
-            {[
-              { name: "Maximum Flow", Icon: Network, to: "/maxflow", stats: mf },
-              { name: "String Matching", Icon: ScanSearch, to: "/strings", stats: st },
-            ].map(({ name, Icon, to, stats }) => (
-              <div key={name} className="clay-sm p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="flex items-center gap-2 font-display font-bold text-sm text-ink">
-                    <Icon className="w-4 h-4 text-primary" aria-hidden /> {name}
-                  </span>
-                  <span className="text-xs font-body text-muted-fg">{stats.done}/{stats.total} · {stats.stars} stars</span>
-                </div>
-                <ProgressBar value={stats.done} max={stats.total} label={`${name} exercises completed`} />
-                <button
-                  onClick={() => nav(to)}
-                  className="mt-2.5 inline-flex items-center gap-1 text-sm font-display font-bold text-primary hover:underline cursor-pointer"
-                >
-                  <BookOpen className="w-4 h-4" aria-hidden /> Continue
-                </button>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Exercise log */}
-        <Card title="Exercise log" accent="border-amber-300">
-          {completed === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-6 text-center">
-              <Trophy className="w-8 h-8 text-line" aria-hidden />
-              <p className="text-sm text-muted-fg font-body max-w-xs">
-                No exercises completed yet. Open Maximum Flow or String Matching and start with the
-                Exercises tab — your results will show up here.
-              </p>
-            </div>
-          ) : (
-            <ul className="space-y-1.5 text-sm font-body">
-              {Object.entries(data.challenges)
-                .filter(([, r]) => r.stars > 0)
-                .map(([id, r]) => (
-                  <li key={id} className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2">
-                    <span className="text-ink font-bold">{id}</span>
-                    <Stars n={r.stars} />
-                  </li>
-                ))}
-            </ul>
-          )}
-        </Card>
-
-        {/* Settings */}
-        <Card title="Settings" accent="border-secondary/50">
-          <div className="space-y-3 text-sm font-body text-ink">
-            <label className="flex items-center gap-2.5 min-h-11 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.settings.reducedMotion}
-                onChange={(e) => updateSettings({ reducedMotion: e.target.checked })}
-                className="w-5 h-5 accent-[#047857] rounded"
-              />
-              Reduced motion
-            </label>
-            <p className="text-xs text-muted-fg leading-relaxed">
-              Progress is stored in this browser only (LocalStorage). It is not synced across devices
-              and can be cleared by browser data resets.
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Danger zone */}
-      <Card title="Danger zone" accent="border-danger/40">
-        <div className="space-y-3">
-          <p className="text-sm text-muted-fg font-body">
-            This will erase all progress, stars, and settings permanently.
-          </p>
-          <Button
-            variant="danger"
-            onClick={() => {
-              if (window.confirm("Reset ALL progress? This cannot be undone.")) {
-                resetAll();
-              }
-            }}
-          >
-            <AlertTriangle className="w-4 h-4" aria-hidden /> Reset all progress
-          </Button>
-        </div>
-      </Card>
-    </div>
-  );
+  return <div className="space-y-6">
+    <section className="relative overflow-hidden rounded-[28px] border-2 border-primary/30 bg-gradient-to-br from-[#0d3b2b] via-primary to-[#0b6145] p-6 text-white shadow-clay-sm sm:p-8"><div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-secondary/25 blur-3xl" aria-hidden /><div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-accent/20 blur-3xl" aria-hidden /><div className="relative grid gap-8 lg:grid-cols-[1fr_280px] lg:items-center"><div><div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-display font-black uppercase tracking-[0.12em]"><Crown className="h-3.5 w-3.5 text-secondary" aria-hidden /> Trophy room</span><span className="text-xs text-white/70">{tier}</span></div><h1 className="mt-4 font-display text-3xl font-black tracking-tight sm:text-5xl">Your work has a place here.</h1><p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">Every solved exercise, earned star, and careful step through an algorithm adds to your collection. Keep climbing—the next badge is closer than it looks.</p><div className="mt-6 flex flex-wrap gap-3"><Button variant="secondary" onClick={() => nav(nextTopic.to)}><BookOpen className="h-4 w-4" aria-hidden /> Continue {nextTopic.name}</Button><span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 font-display text-sm font-bold text-white"><Zap className="h-4 w-4 text-secondary" aria-hidden /> {data.progress.xp} XP collected</span></div></div><div className="mx-auto flex h-56 w-56 flex-col items-center justify-center rounded-full border-8 border-white/15 bg-white/10 text-center shadow-[inset_0_0_40px_rgba(255,255,255,.08)] backdrop-blur-sm"><Medal className="h-10 w-10 text-secondary" aria-hidden /><p className="mt-2 font-display text-5xl font-black">{level}</p><p className="text-xs font-display font-bold uppercase tracking-[0.18em] text-white/70">level</p><div className="mt-3 w-32"><div className="h-2 overflow-hidden rounded-full bg-white/20"><div className="h-full rounded-full bg-secondary" style={{ width: `${(into / XP_PER_LEVEL) * 100}%` }} /></div><p className="mt-1 text-[11px] text-white/70">{into}/{XP_PER_LEVEL} to next</p></div></div></div></section>
+    <section className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Metric icon={<Trophy className="h-5 w-5" aria-hidden />} value={completed} label={`of ${totalChallenges} exercises`} tone="primary"/><Metric icon={<Star className="h-5 w-5" aria-hidden />} value={totalStars} label="stars earned" tone="accent"/><Metric icon={<ShieldCheck className="h-5 w-5" aria-hidden />} value={`${masteryPercent}%`} label="course mastery" tone="ok"/><Metric icon={<Zap className="h-5 w-5" aria-hidden />} value={data.progress.coins} label="coins collected" tone="info"/></section>
+    <section className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]"><Card title={<span className="flex items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-secondary" aria-hidden /> Learning collection</span><span className="text-xs font-body font-normal text-muted-fg">{completed}/{totalChallenges} complete</span></span>} accent="border-primary/30"><div className="space-y-3">{TOPICS.map((topic, index) => { const stats = topicStats[topic.id as TopicId] as TopicStats; const styles = toneStyles[topic.tone as keyof typeof toneStyles]; const percent = stats.total ? Math.round((stats.done / stats.total) * 100) : 0; return <motion.button key={topic.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} onClick={() => nav(topic.to)} className="group w-full rounded-2xl border-2 border-line bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-clay-sm cursor-pointer"><div className="flex items-center gap-3"><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}><topic.Icon className="h-5 w-5" aria-hidden /></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center justify-between gap-2"><span className="font-display font-black text-ink">{topic.name}</span><span className="text-xs font-body text-muted-fg">{stats.done}/{stats.total} exercises · {stats.stars} stars</span></span><span className="mt-1 block text-xs text-muted-fg">{topic.description}</span></span><ArrowRight className="h-4 w-4 shrink-0 text-muted-fg transition-transform group-hover:translate-x-1 group-hover:text-primary" aria-hidden /></div><div className="mt-3 flex items-center gap-3"><div className="h-2 flex-1 overflow-hidden rounded-full bg-muted"><div className={`h-full rounded-full ${styles.line} transition-all duration-500`} style={{ width: `${percent}%` }} /></div><span className="w-10 text-right font-mono text-xs font-bold text-muted-fg">{percent}%</span></div></motion.button>})}</div></Card><div className="space-y-5"><Card title="Next display piece" accent="border-accent/40"><div className="flex flex-col items-center text-center"><div className="relative flex h-24 w-24 items-center justify-center rounded-full border-4 border-secondary/30 bg-secondary/10"><Trophy className="h-10 w-10 text-secondary" aria-hidden /><span className="absolute -right-1 -top-1 rounded-full bg-card px-2 py-1 text-[10px] font-display font-black text-primary shadow-sm">{nextStats.done}/{nextStats.total}</span></div><p className="mt-4 font-display text-lg font-black text-ink">{nextTopic.name}</p><p className="mt-1 text-sm leading-relaxed text-muted-fg">Complete the remaining exercises to raise this topic's banner.</p><Button className="mt-4 w-full" variant="primary" onClick={() => nav(nextTopic.to)}>Keep building <ArrowRight className="h-4 w-4" aria-hidden /></Button></div></Card><Card title="Your record" accent="border-info/30"><div className="space-y-3 text-sm"><RecordRow label="Current level" value={`Level ${level}`} icon={<Crown className="h-4 w-4" aria-hidden />}/><RecordRow label="Total XP" value={`${data.progress.xp} XP`} icon={<Zap className="h-4 w-4" aria-hidden />}/><RecordRow label="Course mastery" value={`${masteryPercent}%`} icon={<Target className="h-4 w-4" aria-hidden />}/></div></Card></div></section>
+    <section className="grid gap-5 lg:grid-cols-2"><Card title="Achievement shelf" accent="border-secondary/40"><div className="grid grid-cols-3 gap-3">{[{ icon: <Medal className="h-6 w-6" aria-hidden />, label: "First solve", unlocked: completed > 0 }, { icon: <Star className="h-6 w-6" aria-hidden />, label: "Star collector", unlocked: totalStars >= 3 }, { icon: <Crown className="h-6 w-6" aria-hidden />, label: "Level 3", unlocked: level >= 3 }].map((badge) => <div key={badge.label} className={`rounded-xl border-2 p-3 text-center ${badge.unlocked ? "border-secondary/40 bg-secondary/10 text-secondary" : "border-line bg-muted/40 text-line"}`}><div className="flex justify-center">{badge.icon}</div><p className="mt-2 text-xs font-display font-bold">{badge.label}</p><p className="mt-1 text-[10px]">{badge.unlocked ? "Unlocked" : "Locked"}</p></div>)}</div><p className="mt-4 text-xs leading-relaxed text-muted-fg">Achievements are milestones in your study habit—not a separate game. The shelf grows as your algorithm understanding grows.</p></Card><Card title={<span className="inline-flex items-center gap-2"><Settings className="h-4 w-4 text-muted-fg" aria-hidden /> Preferences</span>} accent="border-line"><div className="space-y-4 text-sm text-ink"><label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" checked={data.settings.reducedMotion} onChange={(event) => updateSettings({ reducedMotion: event.target.checked })} className="h-5 w-5 accent-[#047857]" /> Reduced motion</label><p className="rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-fg">Progress is stored in this browser only. It is not synced across devices.</p></div></Card></section>
+    <Card title="Reset collection" accent="border-danger/30"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-fg">Only use this if you intentionally want to erase stars, XP, and settings.</p><Button variant="danger" onClick={() => { if (window.confirm("Reset ALL progress? This cannot be undone.")) resetAll(); }}><AlertTriangle className="h-4 w-4" aria-hidden /> Reset all progress</Button></div></Card>
+  </div>;
 }
+
+function Metric({ icon, value, label, tone }: { icon: React.ReactNode; value: string | number; label: string; tone: keyof typeof toneStyles }) { return <div className={`rounded-2xl border-2 p-4 ${toneStyles[tone].border} ${toneStyles[tone].soft}`}><div className="flex items-center justify-between gap-2"><span className="font-display text-2xl font-black">{value}</span><span className="opacity-80">{icon}</span></div><p className="mt-2 text-xs font-display font-bold uppercase tracking-wide opacity-75">{label}</p></div>; }
+function RecordRow({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) { return <div className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2.5"><span className="inline-flex items-center gap-2 text-muted-fg"><span className="text-primary">{icon}</span>{label}</span><span className="font-display font-black text-ink">{value}</span></div>; }
