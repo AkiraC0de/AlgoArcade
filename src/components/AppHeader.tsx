@@ -43,7 +43,7 @@ export function AppHeader() {
             <BookOpen className="w-5 h-5" aria-hidden />
           </span>
           <span className="font-display font-bold text-lg text-ink hidden sm:inline">
-            Module 6 <span className="text-primary">Algorithms</span>
+            Module 6 <span className="text-primary">Algorithm and Complexity</span>
           </span>
         </Link>
 

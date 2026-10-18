@@ -1,6 +1,7 @@
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppHeader } from "./components/AppHeader";
+import { SiteFooter } from "./components/SiteFooter";
 import { useGameStore } from "./state/gameStore";
 import Home from "./pages/HomeRefactored";
 import StringsPage from "./pages/strings/StringsPage";
@@ -47,6 +48,7 @@ export default function App() {
           <main className="mx-auto max-w-6xl px-4 py-6 pb-20">
             <AnimatedRoutes />
           </main>
+          <SiteFooter />
         </div>
       </BrowserRouter>
     </MotionConfig>
