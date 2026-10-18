@@ -1,17 +1,18 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { Star } from "lucide-react";
 
-type Variant = "cyan" | "magenta" | "yellow" | "green" | "dim";
+type Variant = "primary" | "secondary" | "accent" | "ghost" | "danger";
 
 const V: Record<Variant, string> = {
-  cyan: "border-neon-cyan text-neon-cyan",
-  magenta: "border-neon-magenta text-neon-magenta",
-  yellow: "border-neon-yellow text-neon-yellow",
-  green: "border-neon-green text-neon-green",
-  dim: "border-grid text-dim",
+  primary: "bg-primary text-primary-fg border-primary",
+  secondary: "bg-card text-primary border-primary",
+  accent: "bg-accent text-accent-fg border-accent",
+  ghost: "bg-muted text-ink border-line hover:bg-line/60",
+  danger: "bg-card text-danger border-danger",
 };
 
-export function PixelButton({
-  variant = "cyan",
+export function Button({
+  variant = "primary",
   active = false,
   className = "",
   ...rest
@@ -19,20 +20,24 @@ export function PixelButton({
   return (
     <button
       {...rest}
-      className={`font-pixel text-[10px] leading-none px-3 py-2.5 border-2 transition-transform
-        ${V[variant]} ${active ? "bg-panel2 shadow-[0_0_12px_0_currentColor]" : "bg-panel"}
-        hover:enabled:brightness-125 active:enabled:translate-y-0.5
-        disabled:opacity-35 disabled:cursor-not-allowed
-        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-yellow
+      className={`font-display font-semibold text-sm leading-none min-h-11 px-4 py-2.5 rounded-xl border-2
+        transition-all duration-200 cursor-pointer
+        ${V[variant]} ${active ? "ring-2 ring-offset-2 ring-primary shadow-clay-sm" : "shadow-clay-sm"}
+        hover:enabled:brightness-105 hover:enabled:-translate-y-px active:enabled:translate-y-0.5
+        disabled:opacity-40 disabled:cursor-not-allowed
+        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
         ${className}`}
     />
   );
 }
 
-export function Panel({
+/** Compat alias — old consumers import PixelButton. */
+export const PixelButton = Button;
+
+export function Card({
   title,
   children,
-  accent = "border-grid",
+  accent = "",
   className = "",
 }: {
   title?: ReactNode;
@@ -41,46 +46,82 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={`pixel-border bg-panel ${accent} ${className}`}>
+    <section className={`clay ${accent} ${className}`}>
       {title !== undefined && (
-        <h2 className="font-pixel text-[11px] text-neon-yellow border-b-2 border-grid px-3 py-2 tracking-wide">
+        <h2 className="font-display font-bold text-base text-ink border-b-2 border-muted px-5 py-3 tracking-wide">
           {title}
         </h2>
       )}
-      <div className="p-3">{children}</div>
+      <div className="p-5">{children}</div>
     </section>
   );
 }
 
-export function Chip({ children, color = "text-neon-cyan" }: { children: ReactNode; color?: string }) {
-  return (
-    <span className={`font-pixel text-[9px] border border-current px-2 py-1 ${color}`}>{children}</span>
-  );
-}
+/** Compat alias. */
+export const Panel = Card;
 
-export function Stars({ n }: { n: number }) {
+export function Badge({ children, tone = "text-primary bg-primary/10" }: { children: ReactNode; tone?: string }) {
   return (
-    <span aria-label={`${n} of 3 stars`} className="text-neon-yellow tracking-widest">
-      {"★".repeat(n)}
-      <span className="text-grid">{"★".repeat(Math.max(0, 3 - n))}</span>
+    <span className={`font-display font-semibold text-xs rounded-full px-3 py-1 ${tone}`}>
+      {children}
     </span>
   );
 }
 
-export function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+/** Compat alias. */
+export function Chip({ children, color = "text-primary" }: { children: ReactNode; color?: string }) {
+  return <Badge tone={`${color} bg-current/0 border border-current`}>{children}</Badge>;
+}
+
+export function Stars({ n }: { n: number }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-dim">
-      <span className="font-pixel text-[9px]">{label}</span>
+    <span aria-label={`${n} of 3 stars`} className="inline-flex gap-0.5">
+      {[0, 1, 2].map((i) => (
+        <Star
+          key={i}
+          aria-hidden
+          className={`w-4 h-4 ${i < n ? "fill-amber-400 text-amber-400" : "fill-transparent text-line"}`}
+        />
+      ))}
+    </span>
+  );
+}
+
+export function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm text-muted-fg">
+      <span className="font-display font-semibold text-xs uppercase tracking-wide">{label}</span>
       {children}
     </label>
   );
 }
 
 export const inputCls =
-  "bg-crt border-2 border-grid px-2 py-1.5 font-term text-sm text-neon-green focus:border-neon-cyan focus-visible:outline-none";
+  "bg-card border-2 border-line rounded-xl px-3.5 py-2.5 font-body text-base text-ink " +
+  "focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors";
+
+export function ProgressBar({
+  value,
+  max,
+  tone = "bg-primary",
+  label,
+}: {
+  value: number;
+  max: number;
+  tone?: string;
+  label?: string;
+}) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div
+      className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-label={label ?? "progress"}
+    >
+      <div className={`h-full rounded-full ${tone} transition-all duration-500`} style={{ width: `${pct}%` }} />
+    </div>
+  );
+}

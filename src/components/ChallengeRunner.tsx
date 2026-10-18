@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { CheckCircle2, Lightbulb, XCircle } from "lucide-react";
 import type { Challenge } from "../challenges/challenges";
 import { starsForAttempts, useGameStore } from "../state/gameStore";
-import { inputCls, Panel, PixelButton, Stars } from "./ui";
+import { Button, Card, inputCls, Stars } from "./ui";
 
 export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
   const record = useGameStore((s) => s.data.challenges[challenge.id]);
@@ -18,11 +19,10 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
 
   const submit = () => {
     if (solved || feedback === "right") return;
-    const raw = challenge.kind === "number" ? Number(value) : Number(value);
+    const raw = Number(value);
     if (value === "" || Number.isNaN(raw)) return;
-    const attemptsSoFar = attemptsThisSession;
     if (raw === challenge.answer) {
-      const stars = starsForAttempts(attemptsSoFar + 1);
+      const stars = starsForAttempts(attemptsThisSession + 1);
       complete(challenge.id, stars);
       setFeedback("right");
     } else {
@@ -33,32 +33,30 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
   };
 
   return (
-    <Panel
+    <Card
       title={
         <span className="flex items-center justify-between gap-2">
           <span>{challenge.title}</span>
           <Stars n={record?.stars ?? 0} />
         </span>
       }
-      accent={solved ? "border-neon-green" : "border-grid"}
+      accent={solved ? "border-ok/50" : ""}
     >
-      <p className="text-sm leading-relaxed">{challenge.prompt}</p>
+      <p className="text-sm font-body text-ink leading-relaxed">{challenge.prompt}</p>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         {challenge.kind === "choice" ? (
           challenge.options!.map((opt, i) => (
-            <PixelButton
+            <Button
               key={i}
-              variant={feedback === "right" && i === challenge.answer ? "green" : "dim"}
-              disabled={solved || feedback === "right"}
-              onClick={() => {
-                setValue(String(i));
-              }}
+              variant={feedback === "right" && i === challenge.answer ? "primary" : "ghost"}
               active={value === String(i)}
+              disabled={solved || feedback === "right"}
+              onClick={() => setValue(String(i))}
               aria-pressed={value === String(i)}
             >
               {opt}
-            </PixelButton>
+            </Button>
           ))
         ) : (
           <input
@@ -68,19 +66,16 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
             value={value}
             disabled={solved || feedback === "right"}
             onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder="?"
           />
         )}
-        <PixelButton
-          variant="yellow"
-          onClick={submit}
-          disabled={value === "" || solved || feedback === "right"}
-        >
-          SUBMIT
-        </PixelButton>
+        <Button variant="accent" onClick={submit} disabled={value === "" || solved || feedback === "right"}>
+          Submit
+        </Button>
       </div>
 
-      <div aria-live="polite" className="mt-2 min-h-5 font-pixel text-[9px]">
+      <div aria-live="polite" className="mt-3 min-h-6 font-display font-bold text-sm">
         <AnimatePresence mode="wait">
           {solved || feedback === "right" ? (
             <motion.span
@@ -88,9 +83,9 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="text-neon-green inline-block"
+              className="inline-flex items-center gap-1.5 text-ok"
             >
-              ✓ CORRECT — EXERCISE COMPLETE
+              <CheckCircle2 className="w-4 h-4" aria-hidden /> Correct — exercise complete
             </motion.span>
           ) : feedback === "wrong" ? (
             <motion.span
@@ -98,26 +93,31 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, x: [0, -6, 6, -4, 4, 0] }}
               transition={{ x: { duration: 0.35 }, opacity: { duration: 0.1 } }}
-              className="text-neon-red inline-block"
+              className="inline-flex items-center gap-1.5 text-danger"
             >
-              ✗ INCORRECT — CHECK THE HINT AND RETRY
+              <XCircle className="w-4 h-4" aria-hidden /> Incorrect — check the hint and retry
             </motion.span>
           ) : null}
         </AnimatePresence>
       </div>
+
       {showHint && !(solved || feedback === "right") && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
-          className="mt-1 text-xs text-neon-yellow font-term"
+          className="mt-2 flex items-start gap-2 rounded-xl border-2 border-amber-200 bg-amber-50 p-3"
         >
-          HINT: {challenge.hint}
-        </motion.p>
+          <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden />
+          <p className="text-sm text-amber-900 font-body">{challenge.hint}</p>
+        </motion.div>
       )}
+
       {attemptsThisSession > 0 && !solved && feedback !== "right" && (
-        <p className="mt-1 text-[11px] text-dim">Attempts: {attemptsThisSession} — fewer attempts = more stars.</p>
+        <p className="mt-2 text-xs text-muted-fg font-body">
+          Attempts: {attemptsThisSession} — fewer attempts earn more stars.
+        </p>
       )}
-    </Panel>
+    </Card>
   );
 }

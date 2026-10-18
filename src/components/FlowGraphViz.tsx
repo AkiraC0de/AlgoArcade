@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from "motion/react";
+import { Search, Zap, Ban } from "lucide-react";
 import type { FlowGraph, MaxFlowStep } from "../engine/maxflow/fordFulkerson";
 import { edgeKey } from "../engine/maxflow/fordFulkerson";
 import { PRESET_LAYOUTS } from "../engine/maxflow/presets";
 
-/**
- * SVG-based flow network visualization.
- * Shows nodes, edges with capacity/flow labels, and highlights
- * the current augmenting path from the execution trace.
- */
+const IDLE_EDGE = "#c7d2fe";
+const FLOW_EDGE = "#15803d";
+const ACTIVE_EDGE = "#f59e0b";
+
 export function FlowGraphViz({
   graph,
   step,
@@ -29,7 +29,7 @@ export function FlowGraphViz({
   const activeEdges = new Set<string>();
   for (let i = 0; i < activePath.length - 1; i++) {
     activeEdges.add(`${activePath[i]}->${activePath[i + 1]}`);
-    activeEdges.add(`${activePath[i + 1]}->${activePath[i]}`); // reverse too
+    activeEdges.add(`${activePath[i + 1]}->${activePath[i]}`);
   }
 
   return (
@@ -51,7 +51,6 @@ export function FlowGraphViz({
           const isActive = activeEdges.has(`${e.from}->${e.to}`);
           const residual = e.capacity - flow;
 
-          // Offset line slightly to avoid overlap with reverse edge
           const dx = to[0] - from[0];
           const dy = to[1] - from[1];
           const len = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -74,20 +73,19 @@ export function FlowGraphViz({
                 y2={y2}
                 initial={false}
                 animate={{
-                  stroke: isActive ? "#fbbf24" : flow > 0 ? "#4ade80" : "#26264d",
+                  stroke: isActive ? ACTIVE_EDGE : flow > 0 ? FLOW_EDGE : IDLE_EDGE,
                   strokeWidth: isActive ? 3 : 2,
                 }}
                 transition={{ duration: 0.25 }}
-                markerEnd={isActive ? "url(#arrowActive)" : "url(#arrow)"}
+                markerEnd={isActive ? "url(#arrowActive)" : flow > 0 ? "url(#arrowFlow)" : "url(#arrow)"}
               />
-              {/* Marching dashes show flow direction during a push step */}
               {isActive && step?.kind === "push" && (
                 <motion.line
                   x1={x1}
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke="#fef3c7"
+                  stroke="#ea580c"
                   strokeWidth={1.5}
                   strokeDasharray="5 7"
                   initial={{ strokeDashoffset: 24 }}
@@ -100,22 +98,23 @@ export function FlowGraphViz({
                 y={my - 10}
                 width={44}
                 height={20}
-                rx={2}
-                fill="#10101d"
+                rx={8}
+                fill="#ffffff"
                 initial={false}
-                animate={{ stroke: isActive ? "#fbbf24" : "#26264d" }}
+                animate={{ stroke: isActive ? ACTIVE_EDGE : IDLE_EDGE }}
                 transition={{ duration: 0.25 }}
-                strokeWidth={1}
+                strokeWidth={1.5}
               />
               <motion.text
                 x={mx}
                 y={my + 4}
                 textAnchor="middle"
-                fontSize={9}
-                fontFamily="Space Mono, monospace"
+                fontSize={10}
+                fontWeight={700}
+                fontFamily="Comic Neue, sans-serif"
                 initial={false}
                 animate={{
-                  fill: isActive ? "#fbbf24" : residual === 0 ? "#f87171" : "#8b8bb0",
+                  fill: isActive ? "#b45309" : residual === 0 ? "#dc2626" : "#475569",
                 }}
                 transition={{ duration: 0.25 }}
               >
@@ -135,13 +134,12 @@ export function FlowGraphViz({
 
           return (
             <g key={n}>
-              {/* Pulse ring while the node is on the active path */}
               {inPath && (
                 <motion.circle
                   cx={pos[0]}
                   cy={pos[1]}
                   fill="none"
-                  stroke="#fbbf24"
+                  stroke={ACTIVE_EDGE}
                   strokeWidth={2}
                   initial={{ r: NODE_R, opacity: 0.7 }}
                   animate={{ r: NODE_R + 12, opacity: 0 }}
@@ -154,52 +152,55 @@ export function FlowGraphViz({
                 initial={{ r: 0 }}
                 animate={{ r: NODE_R }}
                 transition={{ delay: idx * 0.06, type: "spring", stiffness: 320, damping: 20 }}
-                fill={inPath ? "#171730" : "#10101d"}
-                stroke={isSource ? "#22d3ee" : isSink ? "#e879f9" : inPath ? "#fbbf24" : "#26264d"}
+                fill="#ffffff"
+                stroke={isSource ? "#4f46e5" : isSink ? "#ea580c" : inPath ? ACTIVE_EDGE : IDLE_EDGE}
                 strokeWidth={inPath ? 3 : 2}
               />
               <motion.text
                 x={pos[0]}
                 y={pos[1] + 4}
                 textAnchor="middle"
-                fontSize={11}
-                fontWeight="bold"
-                fontFamily="Press Start 2P, monospace"
+                fontSize={12}
+                fontWeight={700}
+                fontFamily="Baloo 2, sans-serif"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: idx * 0.06 + 0.1, duration: 0.2 }}
-                fill={isSource ? "#22d3ee" : isSink ? "#e879f9" : inPath ? "#fbbf24" : "#e6e6f2"}
+                fill={isSource ? "#4f46e5" : isSink ? "#ea580c" : inPath ? "#b45309" : "#1e1b4b"}
               >
                 {n}
               </motion.text>
               {(isSource || isSink) && (
                 <text
                   x={pos[0]}
-                  y={pos[1] + NODE_R + 12}
+                  y={pos[1] + NODE_R + 13}
                   textAnchor="middle"
-                  fontSize={7}
-                  fontFamily="Press Start 2P, monospace"
-                  fill={isSource ? "#22d3ee" : "#e879f9"}
+                  fontSize={9}
+                  fontWeight={700}
+                  fontFamily="Baloo 2, sans-serif"
+                  fill={isSource ? "#4f46e5" : "#ea580c"}
                 >
-                  {isSource ? "SRC" : "SINK"}
+                  {isSource ? "SOURCE" : "SINK"}
                 </text>
               )}
             </g>
           );
         })}
 
-        {/* Arrow markers */}
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L8,3 L0,6" fill="#26264d" />
+            <path d="M0,0 L8,3 L0,6" fill="#c7d2fe" />
+          </marker>
+          <marker id="arrowFlow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6" fill="#15803d" />
           </marker>
           <marker id="arrowActive" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L8,3 L0,6" fill="#fbbf24" />
+            <path d="M0,0 L8,3 L0,6" fill="#f59e0b" />
           </marker>
         </defs>
       </svg>
 
-      {/* Status bar — animates on every new step */}
+      {/* Status bar */}
       <AnimatePresence mode="wait">
         {step && (
           <motion.div
@@ -208,25 +209,25 @@ export function FlowGraphViz({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18 }}
-            className="mt-2 flex flex-wrap gap-3 text-xs font-term"
+            className="mt-2 flex flex-wrap gap-3 text-sm font-body items-center"
           >
             {step.kind === "path" && (
-              <span className="text-neon-yellow">
-                🔍 Found augmenting path: {step.path?.join(" → ")}
+              <span className="inline-flex items-center gap-1.5 text-amber-700 font-bold">
+                <Search className="w-4 h-4" aria-hidden /> Augmenting path: {step.path?.join(" → ")}
               </span>
             )}
             {step.kind === "push" && (
-              <span className="text-neon-green">
-                ⚡ Pushed {step.bottleneck} unit(s) along {step.path?.join(" → ")}
+              <span className="inline-flex items-center gap-1.5 text-ok font-bold">
+                <Zap className="w-4 h-4" aria-hidden /> Pushed {step.bottleneck} unit(s) along {step.path?.join(" → ")}
               </span>
             )}
             {step.kind === "no-path" && (
-              <span className="text-neon-red">
-                🚫 No more augmenting paths — algorithm terminates.
+              <span className="inline-flex items-center gap-1.5 text-danger font-bold">
+                <Ban className="w-4 h-4" aria-hidden /> No more augmenting paths — algorithm terminates.
               </span>
             )}
-            <span className="text-neon-cyan ml-auto">
-              Total flow: <strong className="text-neon-yellow">{step.totalFlow}</strong>
+            <span className="text-primary font-bold ml-auto">
+              Total flow: <span className="text-ink">{step.totalFlow}</span>
             </span>
           </motion.div>
         )}

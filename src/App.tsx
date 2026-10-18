@@ -1,6 +1,6 @@
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { Hud } from "./components/Hud";
+import { AppHeader } from "./components/AppHeader";
 import { useGameStore } from "./state/gameStore";
 import Home from "./pages/Home";
 import StringsPage from "./pages/strings/StringsPage";
@@ -34,9 +34,9 @@ export default function App() {
   return (
     <MotionConfig reducedMotion={settings.reducedMotion ? "always" : "user"}>
       <BrowserRouter>
-        <div className={`min-h-screen ${settings.scanlines ? "scanlines" : ""}`}>
-          <Hud />
-          <main className="mx-auto max-w-6xl px-3 py-4 pb-16">
+        <div className="min-h-screen bg-surface text-ink">
+          <AppHeader />
+          <main className="mx-auto max-w-6xl px-4 py-6 pb-20">
             <AnimatedRoutes />
           </main>
         </div>

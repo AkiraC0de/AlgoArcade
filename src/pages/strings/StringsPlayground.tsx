@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Bookmark, Play, RefreshCw } from "lucide-react";
 import { usePlayback } from "../../hooks/usePlayback";
 import { runNaive, type NaiveStep } from "../../engine/strings/naive";
 import { runRabinKarp, type RKStep } from "../../engine/strings/rabinKarp";
@@ -12,7 +13,7 @@ import { StepLog } from "../../components/StepLog";
 import { StringViz } from "../../components/StringViz";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import { useBookmarks } from "../../hooks/useBookmarks";
-import { Field, inputCls, Panel, PixelButton } from "../../components/ui";
+import { Button, Card, Field, inputCls } from "../../components/ui";
 
 type Algo = "naive" | "rabin-karp" | "boyer-moore";
 
@@ -78,10 +79,9 @@ export function StringsPlayground() {
 
   return (
     <div className="space-y-4">
-      {/* Input panel */}
-      <Panel title="CONTROL PANEL" accent="border-neon-cyan">
+      <Card title="Input & configuration" accent="border-primary/40">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field label="TEXT">
+          <Field label="Text">
             <input
               className={inputCls}
               value={text}
@@ -90,7 +90,7 @@ export function StringsPlayground() {
               aria-label="Text to search in"
             />
           </Field>
-          <Field label="PATTERN">
+          <Field label="Pattern">
             <input
               className={inputCls}
               value={pattern}
@@ -100,10 +100,10 @@ export function StringsPlayground() {
             />
           </Field>
         </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Field label="ALGORITHM">
+        <div className="mt-3 max-w-xs">
+          <Field label="Algorithm">
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={algo}
               onChange={(e) => setAlgo(e.target.value as Algo)}
               aria-label="Select algorithm"
@@ -114,31 +114,23 @@ export function StringsPlayground() {
             </select>
           </Field>
         </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          <PixelButton variant="green" onClick={run}>\u25b6 RUN</PixelButton>
-          <PixelButton variant="dim" onClick={() => loadPreset(DOC_TEXT, DOC_PATTERN)}>
-            DOC: FLOODCONTROL/CONT
-          </PixelButton>
-          <PixelButton variant="dim" onClick={() => loadPreset(BM_DOC_TEXT, BM_DOC_PATTERN)}>
-            DOC: FLOODCONTOTN/TOTN
-          </PixelButton>
-          <PixelButton variant="dim" onClick={() => loadPreset(WORST_CASE_TEXT, WORST_CASE_PATTERN)}>
-            WORST: AAAAAA/AAAB
-          </PixelButton>
-          <PixelButton
-            variant="dim"
-            onClick={() => addBookmark(text, pattern)}
-            disabled={!text || !pattern}
-          >
-            \ud83d\udcbe SAVE
-          </PixelButton>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button variant="accent" onClick={run}>
+            <Play className="w-4 h-4" aria-hidden /> Run
+          </Button>
+          <Button variant="ghost" onClick={() => loadPreset(DOC_TEXT, DOC_PATTERN)}>Doc: FLOODCONTROL/CONT</Button>
+          <Button variant="ghost" onClick={() => loadPreset(BM_DOC_TEXT, BM_DOC_PATTERN)}>Doc: FLOODCONTOTN/TOTN</Button>
+          <Button variant="ghost" onClick={() => loadPreset(WORST_CASE_TEXT, WORST_CASE_PATTERN)}>Worst: AAAAAA/AAAB</Button>
+          <Button variant="secondary" onClick={() => addBookmark(text, pattern)} disabled={!text || !pattern}>
+            <Bookmark className="w-4 h-4" aria-hidden /> Save input
+          </Button>
         </div>
         {bookmarks.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {bookmarks.map((b) => (
               <button
                 key={b.id}
-                className="text-[10px] font-term text-neon-cyan border border-grid px-1.5 py-0.5 hover:border-neon-cyan"
+                className="text-xs font-body font-bold text-primary border-2 border-line bg-card rounded-full px-3 py-1.5 min-h-9 hover:border-primary transition-colors duration-200 cursor-pointer"
                 onClick={() => loadPreset(b.text, b.pattern)}
                 title={`${b.text} / ${b.pattern}`}
               >
@@ -147,31 +139,29 @@ export function StringsPlayground() {
             ))}
           </div>
         )}
-        {error && <p className="text-neon-red text-xs mt-2 font-term" role="alert">{error}</p>}
-        <p className="text-[10px] text-dim mt-2 font-term">
-          Keyboard: Space = play/pause \u00b7 \u2190/\u2192 = step \u00b7 R = reset
+        {error && <p className="text-danger text-sm mt-2 font-body font-bold" role="alert">{error}</p>}
+        <p className="text-xs text-muted-fg mt-3 font-body">
+          Keyboard: Space = play/pause \u00b7 \u2190/\u2192 = step \u00b7 R = reset \u00b7 1\u20134 = speed
         </p>
-      </Panel>
+      </Card>
 
-      {/* Main area: side-by-side on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 space-y-4">
-          <Panel title="EXECUTION VIEWER" accent="border-neon-green">
+          <Card title="Execution viewer" accent="border-ok/40">
             <StringViz text={text} pattern={pattern} step={pb.step} algorithm={algo} />
-          </Panel>
-          <Panel title="PLAYBACK" accent="border-neon-purple">
+          </Card>
+          <Card title="Playback" accent="border-secondary/50">
             <PlaybackControls pb={pb} />
             <TimelineScrubber pb={pb} />
-          </Panel>
+          </Card>
         </div>
         <div className="lg:col-span-2 space-y-4">
-          <Panel title="EXECUTION LOG" accent="border-neon-yellow">
+          <Card title="Execution log" accent="border-amber-300">
             <StepLog notes={pb.steps.map((s) => s.note)} current={pb.index} />
-          </Panel>
+          </Card>
         </div>
       </div>
 
-      {/* Post-run insight */}
       {pb.done && (
         <InsightCard
           rows={[
@@ -188,13 +178,18 @@ export function StringsPlayground() {
           }
           nextAction={
             algo !== "boyer-moore"
-              ? { label: `Try ${algo === "naive" ? "Rabin-Karp" : "Boyer-Moore"} on same input`, onClick: () => { setAlgo(algo === "naive" ? "rabin-karp" : "boyer-moore"); pb.setSteps([]); } }
+              ? {
+                  label: `Try ${algo === "naive" ? "Rabin-Karp" : "Boyer-Moore"} on the same input`,
+                  onClick: () => {
+                    setAlgo(algo === "naive" ? "rabin-karp" : "boyer-moore");
+                    pb.setSteps([]);
+                  },
+                }
               : undefined
           }
         />
       )}
 
-      {/* Complexity bars */}
       {pb.done && (
         <ComplexityBars
           actual={comparisons}
@@ -203,27 +198,26 @@ export function StringsPlayground() {
         />
       )}
 
-      {/* Complexity reference */}
-      <Panel title="COMPLEXITY INTEL" accent="border-neon-magenta">
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-term">
-          <div>
-            <dt className="text-neon-magenta font-pixel text-[8px] mb-1">BEST CASE</dt>
-            <dd className="text-white">{complexity.best}</dd>
+      <Card title="Complexity reference" accent="border-accent/40">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm font-body">
+          <div className="clay-sm p-3">
+            <dt className="font-display font-bold text-xs text-primary uppercase tracking-wide mb-1">Best case</dt>
+            <dd className="text-ink">{complexity.best}</dd>
           </div>
-          <div>
-            <dt className="text-neon-magenta font-pixel text-[8px] mb-1">WORST CASE</dt>
-            <dd className="text-white">{complexity.worst}</dd>
+          <div className="clay-sm p-3">
+            <dt className="font-display font-bold text-xs text-danger uppercase tracking-wide mb-1">Worst case</dt>
+            <dd className="text-ink">{complexity.worst}</dd>
           </div>
-          <div>
-            <dt className="text-neon-magenta font-pixel text-[8px] mb-1">SPACE</dt>
-            <dd className="text-white">{complexity.space}</dd>
+          <div className="clay-sm p-3">
+            <dt className="font-display font-bold text-xs text-info uppercase tracking-wide mb-1">Space</dt>
+            <dd className="text-ink">{complexity.space}</dd>
           </div>
-          <div>
-            <dt className="text-neon-magenta font-pixel text-[8px] mb-1">CHARACTER</dt>
-            <dd className="text-dim">{complexity.note}</dd>
+          <div className="clay-sm p-3">
+            <dt className="font-display font-bold text-xs text-muted-fg uppercase tracking-wide mb-1">Character</dt>
+            <dd className="text-muted-fg">{complexity.note}</dd>
           </div>
         </dl>
-      </Panel>
+      </Card>
     </div>
   );
 }

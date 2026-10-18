@@ -1,144 +1,196 @@
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { GraduationCap, Hash, Lock, Network, ScanSearch, Shapes } from "lucide-react";
+import {
+  ArrowRight,
+  Beaker,
+  Eye,
+  GraduationCap,
+  Lock,
+  Network,
+  PlayCircle,
+  Repeat,
+  ScanSearch,
+  Search,
+  Sparkles,
+} from "lucide-react";
+import { useGameStore } from "../state/gameStore";
+import { CHALLENGES } from "../challenges/challenges";
+import { Badge, ProgressBar } from "../components/ui";
 
 const MotionLink = motion(Link);
-import { useGameStore } from "../state/gameStore";
-import { levelFor } from "../storage/schema";
 
-function PlayableCabinet({
-  to,
-  name,
-  topic,
-  desc,
-  accent,
-  Icon,
-  delay = 0,
-}: {
-  to: string;
-  name: string;
-  topic: string;
-  desc: string;
-  accent: string;
-  Icon: typeof Network;
-  delay?: number;
-}) {
-  return (
-    <MotionLink
-      to={to}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.3, delay, ease: "easeOut" }}
-      className={`pixel-border bg-panel p-4 flex flex-col gap-2 border-2 ${accent} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-yellow`}
-    >
-      <div className="flex items-center justify-between">
-        <Icon className="w-6 h-6" aria-hidden />
-        <span className="font-pixel text-[8px] text-neon-green blink">● READY</span>
-      </div>
-      <h2 className="font-pixel text-[12px] leading-relaxed">{name}</h2>
-      <p className="font-pixel text-[8px] text-dim">{topic}</p>
-      <p className="text-xs leading-relaxed text-dim">{desc}</p>
-      <span className="mt-auto font-pixel text-[9px] text-neon-yellow">OPEN ▶</span>
-    </MotionLink>
-  );
+function moduleProgress(world: "strings" | "maxflow", challenges: Record<string, { stars: number }>) {
+  const list = CHALLENGES.filter((c) => c.world === world);
+  const done = list.filter((c) => (challenges[c.id]?.stars ?? 0) > 0).length;
+  return { done, total: list.length };
 }
 
-function LockedCabinet({
-  name,
-  topic,
-  Icon,
-  delay = 0,
-}: {
-  name: string;
-  topic: string;
-  Icon: typeof Lock;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 0.7, y: 0 }}
-      transition={{ duration: 0.3, delay, ease: "easeOut" }}
-      className="pixel-border bg-panel p-4 flex flex-col gap-2 border-2 border-grid"
-    >
-      <div className="flex items-center justify-between text-dim">
-        <Icon className="w-6 h-6" aria-hidden />
-        <Lock className="w-4 h-4" aria-hidden />
-      </div>
-      <h2 className="font-pixel text-[12px] leading-relaxed text-dim">{name}</h2>
-      <p className="font-pixel text-[8px] text-dim">{topic}</p>
-      <p className="text-xs leading-relaxed text-dim">
-        NOT COVERED — this topic is not in the Module 6 course document, so it remains
-        unavailable until course material is provided.
-      </p>
-    </motion.div>
-  );
-}
+const LEARNING_LOOP = [
+  { Icon: Search, label: "Discover", text: "See what each algorithm does" },
+  { Icon: Beaker, label: "Experiment", text: "Run it on your own inputs" },
+  { Icon: Eye, label: "Observe", text: "Step through every operation" },
+  { Icon: Repeat, label: "Practice", text: "Prove it in the exercises" },
+];
 
 export default function Home() {
   const data = useGameStore((s) => s.data);
-  const solved = Object.values(data.challenges).filter((c) => c.stars > 0).length;
+  const mf = moduleProgress("maxflow", data.challenges);
+  const st = moduleProgress("strings", data.challenges);
+  const started = mf.done + st.done > 0;
+  const recommended = mf.done === 0 ? "/maxflow" : st.done === 0 ? "/strings" : "/player";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Hero */}
       <motion.section
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="text-center py-8 border-2 border-grid pixel-border bg-panel"
+        className="clay px-6 py-10 sm:px-10 sm:py-12 text-center"
       >
-        <p className="font-pixel text-[9px] text-neon-cyan tracking-widest">ALGORITHM &amp; COMPLEXITY · MODULE 6</p>
-        <h1 className="font-pixel text-2xl sm:text-3xl text-neon-magenta neon-text mt-4 leading-relaxed">
-          ADVANCED ALGORITHMS
+        <Badge tone="text-accent bg-accent/10">
+          <Sparkles className="w-3.5 h-3.5 inline mr-1" aria-hidden />
+          Algorithm &amp; Complexity · Module 6
+        </Badge>
+        <h1 className="font-display font-bold text-3xl sm:text-5xl text-ink mt-4 leading-tight">
+          Learn Advanced Algorithms <span className="text-primary">by Running Them</span>
         </h1>
-        <p className="font-pixel text-[9px] text-neon-yellow mt-4 blink">SELECT A TOPIC TO BEGIN</p>
-        <p className="text-sm text-dim mt-4 max-w-xl mx-auto leading-relaxed">
-          Learn by experimenting: feed your own inputs to real algorithm executions, step through every
-          intermediate operation, and complete exercises to earn XP. Level {levelFor(data.progress.xp)} ·{" "}
-          {solved} exercise{solved === 1 ? "" : "s"} completed.
+        <p className="text-muted-fg text-base sm:text-lg mt-4 max-w-2xl mx-auto leading-relaxed">
+          Feed your own inputs into real algorithm executions, step through every intermediate
+          operation, and check your understanding with exercises. No slides — live traces.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-7">
+          <Link
+            to={recommended}
+            className="flex items-center gap-2 min-h-12 px-6 py-3 rounded-xl bg-accent text-accent-fg font-display font-bold text-base shadow-clay-sm hover:-translate-y-0.5 active:translate-y-0.5 transition-transform duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <PlayCircle className="w-5 h-5" aria-hidden />
+            {started ? "Continue Learning" : "Start Learning"}
+          </Link>
+          <Link
+            to="/player"
+            className="flex items-center gap-2 min-h-12 px-6 py-3 rounded-xl bg-card text-primary border-2 border-primary font-display font-bold text-base shadow-clay-sm hover:-translate-y-0.5 active:translate-y-0.5 transition-transform duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <GraduationCap className="w-5 h-5" aria-hidden />
+            My Progress
+          </Link>
+        </div>
       </motion.section>
 
-      <section aria-label="Playable cabinets" className="grid sm:grid-cols-2 gap-4">
-        <PlayableCabinet
-          delay={0.1}
-          to="/maxflow"
-          name="MAXIMUM FLOW"
-          topic="FORD–FULKERSON METHOD"
-          desc="Build flow networks, find augmenting paths, push bottleneck flow, and watch residual + reverse edges update until the max flow is reached."
-          accent="border-neon-cyan text-neon-cyan"
-          Icon={Network}
-        />
-        <PlayableCabinet
-          delay={0.18}
-          to="/strings"
-          name="STRING MATCHING"
-          topic="NAIVE · RABIN-KARP · BOYER-MOORE"
-          desc="Run Naive, Rabin-Karp, or Boyer-Moore to search a pattern inside a text — then compare their comparison counts head-to-head."
-          accent="border-neon-magenta text-neon-magenta"
-          Icon={ScanSearch}
-        />
-      </section>
+      {/* Available modules */}
+      <section aria-label="Learning modules">
+        <h2 className="font-display font-bold text-xl text-ink mb-4">Topics in this module</h2>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <MotionLink
+            to="/maxflow"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -3 }}
+            transition={{ duration: 0.3, delay: 0.08 }}
+            className="clay clay-pressable p-6 flex flex-col gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <div className="flex items-center justify-between">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Network className="w-6 h-6" aria-hidden />
+              </span>
+              {mf.done > 0 ? (
+                <Badge tone="text-ok bg-ok/10">In progress</Badge>
+              ) : (
+                <Badge tone="text-primary bg-primary/10">Recommended start</Badge>
+              )}
+            </div>
+            <h3 className="font-display font-bold text-xl text-ink">Maximum Flow</h3>
+            <p className="text-sm text-muted-fg leading-relaxed">
+              Ford–Fulkerson method: find augmenting paths, push bottleneck flow, and watch
+              residual edges update until the network saturates.
+            </p>
+            <div className="mt-auto space-y-1.5">
+              <div className="flex justify-between text-xs font-display font-semibold text-muted-fg">
+                <span>Exercises</span>
+                <span>{mf.done}/{mf.total}</span>
+              </div>
+              <ProgressBar value={mf.done} max={mf.total} label="Maximum flow exercises completed" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-display font-bold text-sm text-primary">
+              Open topic <ArrowRight className="w-4 h-4" aria-hidden />
+            </span>
+          </MotionLink>
 
-      <section aria-label="Locked cabinets" className="grid sm:grid-cols-3 gap-4">
-        <LockedCabinet name="HASHING" topic="HASHING" Icon={Hash} delay={0.26} />
-        <LockedCabinet name="COMPUTATIONAL GEOMETRY" topic="COMPUTATIONAL GEOMETRY" Icon={Shapes} delay={0.32} />
-        <LockedCabinet name="PARALLEL ALGORITHMS" topic="PARALLEL ALGORITHMS" Icon={Lock} delay={0.38} />
-      </section>
-
-      <section className="grid sm:grid-cols-1 gap-4">
-        <div className="pixel-border bg-panel p-4 border-2 border-grid flex items-center gap-3 text-dim">
-          <GraduationCap className="w-5 h-5 shrink-0" aria-hidden />
-          <p className="text-xs leading-relaxed">
-            <span className="font-pixel text-[9px] text-dim">RECAP — COMING SOON. </span>
-            A quiz cabinet covering the previous module (BFS, DFS, Topological Sort, Dijkstra,
-            Bellman-Ford, Floyd-Warshall, Prim, Kruskal). Planned as a later phase.
-          </p>
+          <MotionLink
+            to="/strings"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -3 }}
+            transition={{ duration: 0.3, delay: 0.16 }}
+            className="clay clay-pressable p-6 flex flex-col gap-3 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <div className="flex items-center justify-between">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                <ScanSearch className="w-6 h-6" aria-hidden />
+              </span>
+              {st.done > 0 ? (
+                <Badge tone="text-ok bg-ok/10">In progress</Badge>
+              ) : (
+                <Badge tone="text-muted-fg bg-muted">Available</Badge>
+              )}
+            </div>
+            <h3 className="font-display font-bold text-xl text-ink">String Matching</h3>
+            <p className="text-sm text-muted-fg leading-relaxed">
+              Naive, Rabin-Karp, and Boyer-Moore search a pattern inside a text — then compare
+              their comparison counts head-to-head.
+            </p>
+            <div className="mt-auto space-y-1.5">
+              <div className="flex justify-between text-xs font-display font-semibold text-muted-fg">
+                <span>Exercises</span>
+                <span>{st.done}/{st.total}</span>
+              </div>
+              <ProgressBar value={st.done} max={st.total} tone="bg-accent" label="String matching exercises completed" />
+            </div>
+            <span className="inline-flex items-center gap-1.5 font-display font-bold text-sm text-accent">
+              Open topic <ArrowRight className="w-4 h-4" aria-hidden />
+            </span>
+          </MotionLink>
         </div>
       </section>
 
-      <p className="text-center text-[11px] text-dim">
+      {/* How learning works */}
+      <section aria-label="How learning works" className="clay p-6">
+        <h2 className="font-display font-bold text-xl text-ink mb-4">How you will learn</h2>
+        <ol className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {LEARNING_LOOP.map(({ Icon, label, text }, i) => (
+            <motion.li
+              key={label}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + i * 0.06, duration: 0.3 }}
+              className="clay-sm p-4"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-primary mb-2">
+                <Icon className="w-5 h-5" aria-hidden />
+              </span>
+              <p className="font-display font-bold text-sm text-ink">{i + 1}. {label}</p>
+              <p className="text-xs text-muted-fg mt-1 leading-relaxed">{text}</p>
+            </motion.li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Not covered in the course document */}
+      <section aria-label="Topics not covered" className="grid sm:grid-cols-3 gap-4">
+        {["Hashing", "Computational Geometry", "Parallel Algorithms"].map((name) => (
+          <div key={name} className="rounded-2xl border-2 border-dashed border-line bg-muted/50 p-5 flex items-start gap-3">
+            <Lock className="w-5 h-5 text-muted-fg shrink-0 mt-0.5" aria-hidden />
+            <div>
+              <p className="font-display font-bold text-sm text-muted-fg">{name}</p>
+              <p className="text-xs text-muted-fg mt-1 leading-relaxed">
+                Not covered in the Module 6 course document — unlocks when material is provided.
+              </p>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <p className="text-center text-xs text-muted-fg">
         Progress is saved in this browser only (LocalStorage) — not synced across devices.
       </p>
     </div>

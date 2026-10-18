@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Play, Shuffle } from "lucide-react";
 import { usePlayback } from "../../hooks/usePlayback";
 import { runFordFulkerson, validateFlowGraph, type FlowGraph, type MaxFlowStep, type PathMode } from "../../engine/maxflow/fordFulkerson";
 import { CLASSIC_23, DIAMOND_9, PRACTICE_13, SIMPLE_17, SOURCE_LIMIT_11 } from "../../engine/maxflow/presets";
@@ -8,7 +9,7 @@ import { TimelineScrubber } from "../../components/TimelineScrubber";
 import { InsightCard } from "../../components/InsightCard";
 import { StepLog } from "../../components/StepLog";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
-import { Field, inputCls, Panel, PixelButton } from "../../components/ui";
+import { Button, Card, Field, inputCls } from "../../components/ui";
 
 type PresetId = "simple17" | "practice13" | "diamond9" | "classic23" | "sourceLimit11";
 
@@ -47,12 +48,11 @@ export function MaxFlowPlayground() {
 
   return (
     <div className="space-y-4">
-      {/* Controls */}
-      <Panel title="CONTROL PANEL" accent="border-neon-magenta">
+      <Card title="Input & configuration" accent="border-primary/40">
         <div className="flex flex-wrap gap-3 items-end">
-          <Field label="NETWORK">
+          <Field label="Network">
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={presetId}
               onChange={(e) => {
                 setPresetId(e.target.value as PresetId);
@@ -68,9 +68,9 @@ export function MaxFlowPlayground() {
               <option value="sourceLimit11">Source-bottleneck (max flow = 11)</option>
             </select>
           </Field>
-          <Field label="PATH STRATEGY">
+          <Field label="Path strategy">
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={pathMode}
               onChange={(e) => setPathMode(e.target.value as PathMode)}
               aria-label="Select path-finding strategy"
@@ -79,46 +79,46 @@ export function MaxFlowPlayground() {
               <option value="dfs">DFS</option>
             </select>
           </Field>
-          <PixelButton variant="green" onClick={run}>\u25b6 RUN</PixelButton>
-          <PixelButton
-            variant="dim"
+          <Button variant="accent" onClick={run}>
+            <Play className="w-4 h-4" aria-hidden /> Run
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => {
               setPathMode((m) => (m === "bfs" ? "dfs" : "bfs"));
               pb.setSteps([]);
             }}
           >
-            TOGGLE STRATEGY
-          </PixelButton>
+            <Shuffle className="w-4 h-4" aria-hidden /> Toggle strategy
+          </Button>
         </div>
-        {error && <p className="text-neon-red text-xs mt-2 font-term" role="alert">{error}</p>}
-        <p className="text-[11px] text-dim mt-2 font-term">
+        {error && <p className="text-danger text-sm mt-2 font-body font-bold" role="alert">{error}</p>}
+        <p className="text-sm text-muted-fg mt-3 font-body leading-relaxed">
           Ford\u2013Fulkerson: repeatedly find an augmenting path in the residual graph, push flow equal
-          to the bottleneck, update residual capacities, repeat until no path exists.
+          to the bottleneck, update residual capacities, and repeat until no path exists.
         </p>
-        <p className="text-[10px] text-dim mt-1 font-term">
-          Keyboard: Space = play/pause \u00b7 \u2190/\u2192 = step \u00b7 R = reset
+        <p className="text-xs text-muted-fg mt-1 font-body">
+          Keyboard: Space = play/pause \u00b7 \u2190/\u2192 = step \u00b7 R = reset \u00b7 1\u20134 = speed
         </p>
-      </Panel>
+      </Card>
 
-      {/* Main area: side-by-side on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 space-y-4">
-          <Panel title="FLOW NETWORK" accent="border-neon-cyan">
+          <Card title="Flow network" accent="border-primary/40">
             <FlowGraphViz graph={graph} step={pb.step} layoutId={presetId} />
-          </Panel>
-          <Panel title="PLAYBACK" accent="border-neon-purple">
+          </Card>
+          <Card title="Playback" accent="border-secondary/50">
             <PlaybackControls pb={pb} />
             <TimelineScrubber pb={pb} />
-          </Panel>
+          </Card>
         </div>
         <div className="lg:col-span-2 space-y-4">
-          <Panel title="EXECUTION LOG" accent="border-neon-yellow">
+          <Card title="Execution log" accent="border-amber-300">
             <StepLog notes={pb.steps.map((s) => s.note)} current={pb.index} />
-          </Panel>
+          </Card>
         </div>
       </div>
 
-      {/* Post-run insight */}
       {pb.done && (
         <InsightCard
           rows={[
@@ -141,25 +141,24 @@ export function MaxFlowPlayground() {
         />
       )}
 
-      {/* Complexity */}
-      <Panel title="COMPLEXITY INTEL" accent="border-neon-green">
-        <div className="text-sm font-term text-white space-y-2">
+      <Card title="Complexity reference" accent="border-ok/40">
+        <div className="text-sm font-body text-ink space-y-2 leading-relaxed">
           <p>
-            <span className="text-neon-magenta font-pixel text-[8px]">TIME:</span>{" "}
+            <span className="font-display font-bold text-xs text-primary uppercase tracking-wide">Time:</span>{" "}
             O(E \u00b7 |f*|) where |f*| is the maximum flow value (Ford\u2013Fulkerson with arbitrary path choice).
             With BFS (Edmonds-Karp): O(V \u00b7 E\u00b2).
           </p>
           <p>
-            <span className="text-neon-magenta font-pixel text-[8px]">SPACE:</span>{" "}
+            <span className="font-display font-bold text-xs text-info uppercase tracking-wide">Space:</span>{" "}
             O(V + E) for the residual graph.
           </p>
-          <p className="text-dim">
-            Note: The course document does not state Ford\u2013Fulkerson's complexity explicitly.
+          <p className="text-muted-fg">
+            Note: The course document does not state Ford\u2013Fulkerson&#39;s complexity explicitly.
             The O(E\u00b7|f*|) bound assumes integer capacities; the BFS bound (Edmonds-Karp) is a
             well-known refinement.
           </p>
         </div>
-      </Panel>
+      </Card>
     </div>
   );
 }

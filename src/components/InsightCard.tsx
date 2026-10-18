@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { ArrowRight, Lightbulb } from "lucide-react";
 
 interface InsightProps {
   rows: { label: string; value: number }[];
@@ -8,30 +9,34 @@ interface InsightProps {
 
 export function InsightCard({ rows, tip, nextAction }: InsightProps) {
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="pixel-border bg-panel border-2 border-neon-green p-4 space-y-3"
+      className="clay p-5 space-y-4"
+      aria-label="Run summary"
     >
-      <h2 className="font-pixel text-[10px] text-neon-green">RUN SUMMARY</h2>
-      <ul className="flex flex-wrap gap-4">
+      <h2 className="font-display font-bold text-base text-ok">Run Summary</h2>
+      <div className="grid grid-cols-3 gap-3">
         {rows.map((r) => (
-          <li key={r.label} className="font-term text-sm">
-            <span className="text-dim">{r.label}: </span>
-            <span className="text-neon-yellow font-bold">{r.value}</span>
-          </li>
+          <div key={r.label} className="clay-sm p-3 text-center">
+            <p className="font-display font-bold text-2xl text-primary">{r.value}</p>
+            <p className="text-xs text-muted-fg font-body mt-0.5">{r.label}</p>
+          </div>
         ))}
-      </ul>
-      <p className="text-xs text-dim leading-relaxed">{tip}</p>
+      </div>
+      <div className="flex items-start gap-2.5 bg-amber-50 border-2 border-amber-200 rounded-xl p-3">
+        <Lightbulb className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden />
+        <p className="text-sm text-amber-900 font-body leading-relaxed">{tip}</p>
+      </div>
       {nextAction && (
         <button
           onClick={nextAction.onClick}
-          className="font-pixel text-[9px] text-neon-cyan border-2 border-neon-cyan px-3 py-2 hover:bg-neon-cyan/10 focus-visible:outline-2 focus-visible:outline-neon-yellow"
+          className="inline-flex items-center gap-2 font-display font-bold text-sm text-primary border-2 border-primary rounded-xl px-4 py-2.5 min-h-11 hover:bg-primary hover:text-primary-fg transition-colors duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          {nextAction.label}
+          {nextAction.label} <ArrowRight className="w-4 h-4" aria-hidden />
         </button>
       )}
-    </motion.div>
+    </motion.section>
   );
 }
