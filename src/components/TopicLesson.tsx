@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
+import { useGameStore } from "../state/gameStore";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, Lightbulb, RotateCcw, Sparkles, Trophy } from "lucide-react";
 import { Button, Card } from "./ui";
 import { getTopic, LEARNING_STAGES, type TopicId } from "../data/module6Lessons";
@@ -16,13 +17,16 @@ function persist(progress: Record<string, number>) {
 
 export function TopicLesson({ topic: topicId }: { topic: TopicId }) {
   const topic = getTopic(topicId);
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => Math.min(readProgress()[topicId] ?? 0, 5));
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const setStageAndSave = (next: number) => {
     const bounded = Math.max(0, Math.min(5, next));
     setStage(bounded);
-    persist({ ...readProgress(), [topicId]: Math.max(readProgress()[topicId] ?? 0, bounded) });
+    const nextProgress = Math.max(readProgress()[topicId] ?? 0, bounded);
+    persist({ ...readProgress(), [topicId]: nextProgress });
+    setLessonProgress(topicId, nextProgress);
     setSelected(null);
     setChecked(false);
     window.scrollTo({ top: 0, behavior: "smooth" });

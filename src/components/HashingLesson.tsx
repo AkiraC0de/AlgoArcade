@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, Hash, Play, RotateCcw, Sparkles, Trophy } from "lucide-react";
 import { Button, Card, Field, inputCls } from "./ui";
 import { getTopic, LEARNING_STAGES } from "../data/module6Lessons";
+import { useGameStore } from "../state/gameStore";
 
 const STORAGE_KEY = "module6:learn-progress";
 const HASH_TRACE_KEYS = [3, 6, 9] as const;
@@ -274,6 +275,7 @@ function CollisionTrace() {
 
 export function HashingLesson() {
   const topic = getTopic("hashing");
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => {
     const saved = Number(readProgress()[topic.id]);
     return Number.isFinite(saved) ? Math.min(Math.max(saved, 0), LEARNING_STAGES.length - 1) : 0;
@@ -289,7 +291,9 @@ export function HashingLesson() {
   const moveToStage = (next: number) => {
     const bounded = Math.min(Math.max(next, 0), LEARNING_STAGES.length - 1);
     setStage(bounded);
-    saveProgress(topic.id, bounded);
+    const nextProgress = Math.max(Number(readProgress()[topic.id]) || 0, bounded);
+    saveProgress(topic.id, nextProgress);
+    setLessonProgress(topic.id, nextProgress);
     setSelectedAnswer(null);
     setChecked(false);
   };

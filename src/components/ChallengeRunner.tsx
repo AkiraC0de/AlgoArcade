@@ -2,8 +2,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, Lightbulb, XCircle } from "lucide-react";
 import type { Challenge } from "../challenges/challenges";
-import { starsForAttempts, useGameStore } from "../state/gameStore";
-import { Button, Card, inputCls, Stars } from "./ui";
+import { useGameStore } from "../state/gameStore";
+import { Button, Card, inputCls } from "./ui";
 
 export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
   const record = useGameStore((s) => s.data.challenges[challenge.id]);
@@ -15,15 +15,14 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
   const [showHint, setShowHint] = useState(false);
 
   const attemptsThisSession = record?.attempts ?? 0;
-  const solved = (record?.stars ?? 0) > 0;
+  const solved = record?.completed === true;
 
   const submit = () => {
     if (solved || feedback === "right") return;
     const raw = Number(value);
     if (value === "" || Number.isNaN(raw)) return;
     if (raw === challenge.answer) {
-      const stars = starsForAttempts(attemptsThisSession + 1);
-      complete(challenge.id, stars);
+      complete(challenge.id);
       setFeedback("right");
     } else {
       addAttempt(challenge.id);
@@ -37,7 +36,7 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
       title={
         <span className="flex items-center justify-between gap-2">
           <span>{challenge.title}</span>
-          <Stars n={record?.stars ?? 0} />
+          {solved && <span className="text-xs font-body font-bold text-ok">Complete</span>}
         </span>
       }
       accent={solved ? "border-ok/50" : ""}
@@ -115,7 +114,7 @@ export function ChallengeRunner({ challenge }: { challenge: Challenge }) {
 
       {attemptsThisSession > 0 && !solved && feedback !== "right" && (
         <p className="mt-2 text-xs text-muted-fg font-body">
-          Attempts: {attemptsThisSession} — fewer attempts earn more stars.
+          Attempts: {attemptsThisSession} — keep practicing until the idea clicks.
         </p>
       )}
     </Card>

@@ -6,6 +6,20 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
 
+function normalizeChallenges(value: unknown): SaveData["challenges"] {
+  if (!isRecord(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).map(([id, raw]) => {
+      const record = isRecord(raw) ? raw : {};
+      return [id, {
+        completed: record.completed === true,
+        attempts: typeof record.attempts === "number" ? record.attempts : 0,
+        ...(typeof record.completedAt === "string" ? { completedAt: record.completedAt } : {}),
+      }];
+    }),
+  ) as SaveData["challenges"];
+}
+
 /** Load the save blob. Any corruption / missing fields fall back to safe defaults. */
 export function loadSave(): SaveData {
   try {
@@ -20,10 +34,10 @@ export function loadSave(): SaveData {
       version: 1,
       progress: {
         xp: typeof d.progress?.xp === "number" ? d.progress.xp : 0,
-        coins: typeof d.progress?.coins === "number" ? d.progress.coins : 0,
       },
-      challenges: isRecord(d.challenges) ? (d.challenges as SaveData["challenges"]) : {},
+      challenges: normalizeChallenges(d.challenges),
       quizScores: isRecord(d.quizScores) ? (d.quizScores as SaveData["quizScores"]) : {},
+      lessons: isRecord(d.lessons) ? (d.lessons as SaveData["lessons"]) : {},
       settings: {
         animSpeed:
           d.settings?.animSpeed === "slow" || d.settings?.animSpeed === "fast"

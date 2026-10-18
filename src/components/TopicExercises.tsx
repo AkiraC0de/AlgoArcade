@@ -3,6 +3,7 @@ import { CheckCircle2, ChevronRight, Lightbulb, RotateCcw, XCircle } from "lucid
 import { Button, Card } from "./ui";
 import { TOPIC_CHALLENGES } from "../data/topicChallenges";
 import type { TopicId } from "../data/module6Lessons";
+import { useGameStore } from "../state/gameStore";
 
 const PROGRESS_KEY = "module6:exercise-progress";
 
@@ -13,15 +14,35 @@ function loadDone(): Record<string, boolean> {
 export function TopicExercises({ topic }: { topic: TopicId }) {
   const items = TOPIC_CHALLENGES.filter((item) => item.topic === topic);
   const [done, setDone] = useState<Record<string, boolean>>(loadDone);
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
+  const completeChallenge = useGameStore((state) => state.completeChallenge);
+  const addAttempt = useGameStore((state) => state.addAttempt);
+  const savedChallenges = useGameStore((state) => state.data.challenges);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [evaluated, setEvaluated] = useState(false);
   const item = items[index];
-  const completeCount = useMemo(() => items.filter((i) => done[i.id]).length, [done, items]);
+  const completeCount = useMemo(() => items.filter((item) => savedChallenges[item.id]?.completed === true || done[item.id]).length, [done, items, savedChallenges]);
 
   if (!item) return null;
   const correct = selected === item.answer;
-  const evaluate = () => { if (selected === null) return; setEvaluated(true); if (selected === item.answer) { const next = { ...done, [item.id]: true }; setDone(next); localStorage.setItem(PROGRESS_KEY, JSON.stringify(next)); } };
+  const evaluate = () => {
+    if (selected === null) return;
+    setEvaluated(true);
+    if (selected === item.answer) {
+      const next = { ...done, [item.id]: true };
+      setDone(next);
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
+      if (savedChallenges[item.id]?.completed !== true) {
+        completeChallenge(item.id);
+      }
+      if (completeCount + (savedChallenges[item.id]?.completed || done[item.id] ? 0 : 1) === items.length) {
+        setLessonProgress(topic, 5);
+      }
+    } else {
+      addAttempt(item.id);
+    }
+  };
   const next = () => { setIndex((index + 1) % items.length); setSelected(null); setEvaluated(false); };
   const reset = () => { setDone({}); localStorage.removeItem(PROGRESS_KEY); setIndex(0); setSelected(null); setEvaluated(false); };
 

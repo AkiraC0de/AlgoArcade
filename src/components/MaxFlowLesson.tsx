@@ -11,6 +11,7 @@ import { FlowGraphViz } from "./FlowGraphViz";
 import { StepLog } from "./StepLog";
 import { TimelineScrubber } from "./TimelineScrubber";
 import { PlaybackControls } from "./PlaybackControls";
+import { useGameStore } from "../state/gameStore";
 
 const KEY = "module6:learn-progress";
 
@@ -41,10 +42,11 @@ function WatchTrace() {
 
 export function MaxFlowLesson() {
   const topic = getTopic("maxflow");
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => Math.min(readProgress().maxflow ?? 0, 5));
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
-  const setStageAndSave = (next: number) => { const bounded = Math.max(0, Math.min(5, next)); setStage(bounded); const previous = readProgress(); persist({ ...previous, maxflow: Math.max(previous.maxflow ?? 0, bounded) }); setSelected(null); setChecked(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const setStageAndSave = (next: number) => { const bounded = Math.max(0, Math.min(5, next)); setStage(bounded); const previous = readProgress(); const nextProgress = Math.max(previous.maxflow ?? 0, bounded); persist({ ...previous, maxflow: nextProgress }); setLessonProgress("maxflow", nextProgress); setSelected(null); setChecked(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const current = topic.stages[stage];
   const answerCorrect = selected === topic.check.answer;
 

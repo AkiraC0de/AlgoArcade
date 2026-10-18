@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { GitBranch, Hash, Network, ScanSearch, Triangle } from "lucide-react";
 import { useGameStore } from "../state/gameStore";
-import { CHALLENGES } from "../challenges/challenges";
+import { TOPIC_CHALLENGES } from "../data/topicChallenges";
 import { levelFor } from "../storage/schema";
 import { ContinueLearningCard } from "../components/home/ContinueLearningCard";
 import { HomeHero } from "../components/home/HomeHero";
@@ -29,32 +29,33 @@ function readLessonProgress(): Record<string, number> {
 
 export default function HomeRefactored() {
   const data = useGameStore((state) => state.data);
-  const progress = useMemo(readLessonProgress, []);
+  const progress = data.lessons;
+  const legacyProgress = useMemo(readLessonProgress, []);
+  const mergedProgress = { ...legacyProgress, ...progress };
   const topicStats = useMemo(() => Object.fromEntries(TOPIC_DEFS.map((topic) => {
-    const list = CHALLENGES.filter((challenge) => challenge.world === topic.id);
-    const done = list.filter((challenge) => (data.challenges[challenge.id]?.stars ?? 0) > 0);
+    const list = TOPIC_CHALLENGES.filter((challenge) => challenge.topic === topic.id);
+    const done = list.filter((challenge) => data.challenges[challenge.id]?.completed === true);
     return [topic.id, { done: done.length, total: list.length }];
   })), [data.challenges]);
-  const nextTopic = TOPIC_DEFS.find((topic) => (progress[topic.id] ?? 0) < 5) ?? TOPIC_DEFS[0];
-  const nextStage = ["Discover", "Understand", "Interact", "Watch the algorithm", "Test understanding", "Reflect and continue"][progress[nextTopic.id] ?? 0];
-  const started = Object.values(progress).some((value) => Number(value) > 0);
+  const nextTopic = TOPIC_DEFS.find((topic) => (mergedProgress[topic.id] ?? 0) < 5) ?? TOPIC_DEFS[0];
+  const nextStage = ["Discover", "Understand", "Interact", "Watch the algorithm", "Test understanding", "Reflect and continue"][mergedProgress[nextTopic.id] ?? 0];
+  const started = Object.values(mergedProgress).some((value) => Number(value) > 0);
   const nextTopicData = { name: nextTopic.name, to: nextTopic.to, description: nextTopic.summary };
   const topics: HomeTopic[] = TOPIC_DEFS.map((topic) => ({
     ...topic,
     ...(topicStats[topic.id] as { done: number; total: number }),
   }));
-  const mastery = CHALLENGES.length
-    ? Math.round((Object.values(data.challenges).filter((challenge) => challenge.stars > 0).length / CHALLENGES.length) * 100)
+  const mastery = TOPIC_CHALLENGES.length
+    ? Math.round((TOPIC_CHALLENGES.filter((challenge) => data.challenges[challenge.id]?.completed === true).length / TOPIC_CHALLENGES.length) * 100)
     : 0;
-  const stars = Object.values(data.challenges).reduce((sum, challenge) => sum + challenge.stars, 0);
 
   return (
     <div className="space-y-7">
       <HomeHero started={started} nextTopic={nextTopicData} nextStage={nextStage} />
-      {started && <ContinueLearningCard topic={nextTopicData} stage={nextStage} percent={Math.round(((progress[nextTopic.id] ?? 0) / 5) * 100)} />}
+      {started && <ContinueLearningCard topic={nextTopicData} stage={nextStage} percent={Math.round(((mergedProgress[nextTopic.id] ?? 0) / 5) * 100)} />}
       <TopicGallery topics={topics} />
       <LearningLoop />
-      <TrophyPreview level={levelFor(data.progress.xp)} xp={data.progress.xp} stars={stars} mastery={mastery} />
+      <TrophyPreview level={levelFor(data.progress.xp)} xp={data.progress.xp} mastery={mastery} />
       <p className="text-center text-xs text-muted-fg">Your learning progress is saved in this browser only.</p>
     </div>
   );

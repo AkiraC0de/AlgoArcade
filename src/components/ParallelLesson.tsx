@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button, Card, Field, inputCls } from "./ui";
 import { getTopic, LEARNING_STAGES } from "../data/module6Lessons";
+import { useGameStore } from "../state/gameStore";
 
 const STORAGE_KEY = "module6:learn-progress";
 const TOPIC_ID = "parallel" as const;
@@ -719,6 +720,7 @@ function ReflectionPanel() {
 
 export function ParallelLesson() {
   const topic = getTopic(TOPIC_ID);
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => readParallelProgress());
   const [progress, setProgress] = useState(() => readParallelProgress());
   const [testChoice, setTestChoice] = useState<number | null>(null);
@@ -729,8 +731,10 @@ export function ParallelLesson() {
 
   const goToStage = (nextStage: number) => {
     const bounded = Math.max(0, Math.min(MAX_STAGE, nextStage));
+    const nextProgress = Math.max(progress, bounded);
     setStage(bounded);
-    setProgress((current) => Math.max(current, bounded));
+    setProgress(nextProgress);
+    setLessonProgress(TOPIC_ID, nextProgress);
   };
 
   const restart = () => {

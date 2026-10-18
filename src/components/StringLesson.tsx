@@ -21,6 +21,7 @@ import { StepLog } from "./StepLog";
 import { StringViz } from "./StringViz";
 import { TimelineScrubber } from "./TimelineScrubber";
 import { Button, Card, inputCls } from "./ui";
+import { useGameStore } from "../state/gameStore";
 
 const KEY = "module6:learn-progress";
 
@@ -443,6 +444,7 @@ function KnowledgeCheck({
 
 export function StringLesson() {
   const topic = getTopic("strings");
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => Math.min(readProgress().strings ?? 0, LEARNING_STAGES.length - 1));
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -452,7 +454,9 @@ export function StringLesson() {
     const bounded = Math.max(0, Math.min(LEARNING_STAGES.length - 1, next));
     const previous = readProgress();
     setStage(bounded);
-    persist({ ...previous, strings: Math.max(previous.strings ?? 0, bounded) });
+    const nextProgress = Math.max(previous.strings ?? 0, bounded);
+    persist({ ...previous, strings: nextProgress });
+    setLessonProgress("strings", nextProgress);
     setSelected(null);
     setChecked(false);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });

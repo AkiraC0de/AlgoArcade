@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, Play, RotateCcw, Sparkles, Trophy } from "lucide-react";
 import { Button, Card, inputCls } from "./ui";
 import { getTopic, LEARNING_STAGES } from "../data/module6Lessons";
+import { useGameStore } from "../state/gameStore";
 
 const STORAGE_KEY = "module6:learn-progress";
 
@@ -314,6 +315,7 @@ function HullWatch() {
 
 export function GeometryLesson() {
   const topic = getTopic("geometry");
+  const setLessonProgress = useGameStore((state) => state.setLessonProgress);
   const [stage, setStage] = useState(() => {
     const saved = Number(readProgress()[topic.id]);
     return Number.isFinite(saved) ? Math.min(Math.max(saved, 0), LEARNING_STAGES.length - 1) : 0;
@@ -328,6 +330,7 @@ export function GeometryLesson() {
     const bounded = Math.min(Math.max(next, 0), LEARNING_STAGES.length - 1);
     setStage(bounded);
     saveProgress(topic.id, bounded);
+    setLessonProgress(topic.id, Math.max(Number(readProgress()[topic.id]) || 0, bounded));
     setSelectedAnswer(null);
     setChecked(false);
   };

@@ -1,5 +1,4 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { Star } from "lucide-react";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost" | "danger";
 
@@ -74,19 +73,6 @@ export function Chip({ children, color = "text-primary" }: { children: ReactNode
   return <Badge tone={`${color} bg-transparent border border-current`}>{children}</Badge>;
 }
 
-export function Stars({ n }: { n: number }) {
-  return (
-    <span aria-label={`${n} of 3 stars`} className="inline-flex gap-0.5">
-      {[0, 1, 2].map((i) => (
-        <Star
-          key={i}
-          aria-hidden
-          className={`w-4 h-4 ${i < n ? "fill-amber-400 text-amber-400" : "fill-transparent text-line"}`}
-        />
-      ))}
-    </span>
-  );
-}
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (

@@ -9,7 +9,7 @@ export function MaxFlowChallenges() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-fg font-body">
-        Answer each exercise to earn stars — fewer attempts means more stars.
+        Work through each exercise to build understanding. Mistakes are part of the process.
       </p>
       {mfChallenges.map((c) => (
         <ChallengeRunner key={c.id} challenge={c} />
