@@ -10,6 +10,11 @@ describe("study assistant scope", () => {
     expect(isStudyAssistantTopicQuestion("Explain the naive approach in string matching")).toBe(true);
     expect(isStudyAssistantTopicQuestion("How does the naive algorithm compare the pattern and text?")).toBe(true);
     expect(isStudyAssistantTopicQuestion("Explain the naive approach", true)).toBe(true);
+    expect(isStudyAssistantTopicQuestion("How does Edmonds-Karp use BFS in a residual network?")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("What is the load factor in a hash table with linear probing?")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("How do I calculate a polygon area with the shoelace formula?")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("What is the difference between work and span in parallel algorithms?")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("Can you do a dry run of the KMP prefix function?")).toBe(true);
   });
 
   it("refuses unrelated or instruction-override questions", () => {
