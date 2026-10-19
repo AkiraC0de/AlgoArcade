@@ -3,7 +3,7 @@ import { STUDY_ASSISTANT_INSTRUCTIONS, STUDY_ASSISTANT_MAX_OUTPUT_TOKENS, STUDY_
 export type StudyChatMessage = { role: "user" | "assistant"; content: string };
 
 const API_URL = "https://api.xkiro.com/v1/chat/completions";
-const MODEL = import.meta.env.XKIRO_MODEL || "mistralai/mistral-large-4-0";
+const MODEL = import.meta.env.VITE_XKIRO_MODEL || "mistralai/mistral-large-4-0";
 
 export async function requestStudyAssistant(
   message: string,
@@ -12,8 +12,8 @@ export async function requestStudyAssistant(
   signal?: AbortSignal,
 ) {
   if (!isStudyAssistantTopicQuestion(message, Boolean(context))) return STUDY_ASSISTANT_REFUSAL;
-  const apiKey = import.meta.env.XKIRO_API_KEY;
-  if (!apiKey) throw new Error("Study assistant is not configured. Add VITE_XKIRO_API_KEY to your local .env file.");
+  const apiKey = import.meta.env.VITE_XKIRO_API_KEY;
+  if (!apiKey) throw new Error("Study assistant is not configured. Add XKIRO_API_KEY to your local .env file.");
 
   const recentHistory = history.slice(-8);
   let response: Response;
