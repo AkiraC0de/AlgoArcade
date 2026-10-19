@@ -11,6 +11,7 @@ import HashingPage from "./pages/hashing/HashingPage";
 import GeometryPage from "./pages/geometry/GeometryPage";
 import ParallelPage from "./pages/parallel/ParallelPage";
 import Module6Page from "./pages/Module6Page";
+import { StudyAssistant } from "./features/study-assistant/StudyAssistant";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -64,6 +65,7 @@ export default function App() {
             <AnimatedRoutes />
           </main>
           <SiteFooter />
+          <StudyAssistant />
         </div>
       </BrowserRouter>
     </MotionConfig>

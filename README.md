@@ -174,6 +174,19 @@ npx vite build --clearScreen false
 - **Naelgas, Sherwin Lloyd N.** — Computational Geometry presenter
 - **Ellorinco, Dhan Renz D.C.** — Parallel Algorithms presenter
 
+## Study assistant configuration
+
+The repository includes a floating Akira Study Assistant using the supplied `src/assets/AlgoArcadeBot.png` avatar. It is restricted in the UI and request instructions to the Module 6 topics: Maximum Flow, String Matching, Hashing, Computational Geometry, and Parallel Algorithms. The assistant is instructed to answer naturally in Taglish or match the student's Tagalog/English preference, with a maximum response budget of 700 output tokens. Rate-limited provider requests receive a short Taglish fallback message.
+
+Configure the static frontend locally by copying `.env.example` to `.env` and setting:
+
+```env
+VITE_XKIRO_API_KEY=your_xkiro_key
+VITE_XKIRO_MODEL=mistralai/mistral-large-4-0
+```
+
+`VITE_` variables are bundled into the browser and are inspectable in a static deployment. They are not secure secret storage. A private production credential requires a server-side proxy, which is intentionally outside this static project. The client also applies topic filtering as a usability safeguard, not as an unbypassable security boundary.
+
 ## Contributing
 
 1. Create a branch for your change.
