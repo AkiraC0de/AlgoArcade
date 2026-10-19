@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">AlgoArcade algorithms favicon</title>
+  <desc id="desc">A green algorithm node graph on a cream arcade tile</desc>
+  <rect width="64" height="64" rx="16" fill="#f3f6f1"/>
+  <rect x="4" y="4" width="56" height="56" rx="13" fill="none" stroke="#087f5b" stroke-width="3"/>
+  <path d="M18 20 31 32 45 18M31 32 45 46M18 44 31 32" fill="none" stroke="#087f5b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="18" cy="20" r="6" fill="#ffbd45" stroke="#087f5b" stroke-width="3"/>
+  <circle cx="45" cy="18" r="6" fill="#ff7b61" stroke="#087f5b" stroke-width="3"/>
+  <circle cx="31" cy="32" r="6" fill="#087f5b" stroke="#f3f6f1" stroke-width="3"/>
+  <circle cx="18" cy="44" r="6" fill="#6fcf97" stroke="#087f5b" stroke-width="3"/>
+  <circle cx="45" cy="46" r="6" fill="#6fcf97" stroke="#087f5b" stroke-width="3"/>
+</svg>
