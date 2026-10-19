@@ -1,12 +1,45 @@
-import {
-  contextPrompt,
-  isStudyAssistantTopicQuestion,
-  STUDY_ASSISTANT_MAX_OUTPUT_TOKENS,
-  STUDY_ASSISTANT_RATE_LIMITED,
-  STUDY_ASSISTANT_REFUSAL,
-  type StudyChatMessage,
-  type StudyLessonContext,
-} from "../src/features/study-assistant/config";
+type StudyChatMessage = { role: "user" | "assistant"; content: string };
+type StudyLessonContext = {
+  topicTitle: string;
+  lessonTitle?: string;
+  objective?: string;
+  explanation?: string;
+};
+
+const STUDY_ASSISTANT_MAX_OUTPUT_TOKENS = 700;
+const STUDY_ASSISTANT_RATE_LIMITED = "Pasensya na, medyo busy ang Akira ngayon at naabot ang request limit. Subukan ulit after a few moments. Habang naghihintay, puwede mong balikan ang lesson o pumili ng suggested question.";
+const STUDY_ASSISTANT_REFUSAL = "I’m here to help you study the topics covered in this learning application. I can explain a concept, walk through an example, or help you practice. What would you like to learn?";
+
+const INJECTION_TERMS = ["ignore previous", "ignore all previous", "reveal your prompt", "show your system message", "developer message", "system prompt", "jailbreak", "remove your restrictions", "act as a different", "disregard your rules"];
+const APPROVED_TOPIC_TERMS = [
+  "maximum flow", "ford-fulkerson", "residual graph", "augmenting path", "bottleneck", "min cut", "flow network", "capacity",
+  "string matching", "string-matching", "naive matching", "naive approach", "naive algorithm", "naive method", "rabin-karp", "rabin karp", "boyer-moore", "boyer moore", "rolling hash", "bad character", "pattern", "text", "substring", "match", "matching algorithm",
+  "hashing", "hash table", "hash function", "collision", "chaining", "open addressing", "modulo", "bucket", "sha-256", "md5",
+  "computational geometry", "convex hull", "closest pair", "cross product", "orientation", "shoelace", "point-in-polygon", "intersection", "coordinate", "distance",
+  "parallel algorithm", "parallel algorithms", "data parallelism", "task parallelism", "pipeline parallelism", "mapreduce", "processor", "worker", "synchronization", "speedup", "partition",
+  "algorithm", "algorithms", "advanced algorithms", "module 6", "complexity", "big o", "time complexity", "space complexity", "exercise", "lesson", "formula", "example", "hint", "practice", "study", "topic", "topics", "what can i study",
+];
+const TOPIC_CONTEXT_TERMS = ["string matching", "string-matching", "maximum flow", "hashing", "computational geometry", "parallel algorithm", "parallel algorithms"];
+const TOPIC_CONCEPT_TERMS = ["naive", "rabin", "boyer", "rolling hash", "collision", "chaining", "convex hull", "cross product", "orientation", "pipeline", "data parallel", "task parallel", "residual", "augmenting", "bottleneck", "min cut"];
+const LESSON_CONTEXT_TERMS = ["this lesson", "this algorithm", "this topic", "this example", "explain this", "summarize this", "what did we learn", "help me understand", "give me a hint", "give me practice"];
+
+function isStudyAssistantTopicQuestion(message: string, hasActiveLesson = false) {
+  const normalized = message.toLowerCase();
+  if (INJECTION_TERMS.some((term) => normalized.includes(term))) return false;
+  if (APPROVED_TOPIC_TERMS.some((term) => normalized.includes(term))) return true;
+  if (TOPIC_CONTEXT_TERMS.some((term) => normalized.includes(term)) && TOPIC_CONCEPT_TERMS.some((term) => normalized.includes(term))) return true;
+  return hasActiveLesson && LESSON_CONTEXT_TERMS.some((term) => normalized.includes(term));
+}
+
+function contextPrompt(context?: StudyLessonContext) {
+  if (!context) return "No specific lesson context is active. Answer only approved Module 6 algorithm questions.";
+  return [
+    `Current topic: ${context.topicTitle}`,
+    context.lessonTitle ? `Current lesson stage: ${context.lessonTitle}` : "",
+    context.objective ? `Learning objective: ${context.objective}` : "",
+    context.explanation ? `Relevant lesson content:\n${context.explanation.slice(0, 2400)}` : "",
+  ].filter(Boolean).join("\n");
+}
 
 const XKIRO_API_URL = "https://api.xkiro.com/v1/chat/completions";
 const APPROVED_TOPIC_TITLES = new Set([

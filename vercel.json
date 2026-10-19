@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/study-assistant", "destination": "/api/study-assistant.ts" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
