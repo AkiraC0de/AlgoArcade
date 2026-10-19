@@ -178,14 +178,14 @@ npx vite build --clearScreen false
 
 The repository includes a floating Akira Study Assistant using the supplied `src/assets/AlgoArcadeBot.png` avatar. It is restricted in the UI and request instructions to the Module 6 topics: Maximum Flow, String Matching, Hashing, Computational Geometry, and Parallel Algorithms. The assistant is instructed to answer naturally in Taglish or match the student's Tagalog/English preference, with a maximum response budget of 700 output tokens. Rate-limited provider requests receive a short Taglish fallback message.
 
-Configure the static frontend locally by copying `.env.example` to `.env` and setting:
+Configure the server-side Vercel Function locally by copying `.env.example` to `.env` and setting:
 
 ```env
-VITE_XKIRO_API_KEY=your_xkiro_key
-VITE_XKIRO_MODEL=mistralai/mistral-large-4-0
+XKIRO_API_KEY=your_xkiro_key
+XKIRO_MODEL=mistralai/mistral-large-4-0
 ```
 
-`VITE_` variables are bundled into the browser and are inspectable in a static deployment. They are not secure secret storage. A private production credential requires a server-side proxy, which is intentionally outside this static project. The client also applies topic filtering as a usability safeguard, not as an unbypassable security boundary.
+These variables intentionally do **not** use the `VITE_` prefix. The key is read only by `api/study-assistant.ts` and is never bundled into the browser. Add the same `XKIRO_API_KEY` and optional `XKIRO_MODEL` variables in Vercel Project Settings → Environment Variables, then redeploy. The browser calls the same-origin `/api/study-assistant` endpoint, so XKIRO CORS is not involved. The client also applies topic filtering as a usability safeguard, while the server repeats the validation before calling XKIRO.
 
 ## Contributing
 

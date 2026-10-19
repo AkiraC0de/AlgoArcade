@@ -1,3 +1,5 @@
+export type StudyChatMessage = { role: "user" | "assistant"; content: string };
+
 export const STUDY_ASSISTANT_MAX_OUTPUT_TOKENS = 700;
 
 export const STUDY_ASSISTANT_RATE_LIMITED = "Pasensya na, medyo busy ang Akira ngayon at naabot ang request limit. Subukan ulit after a few moments. Habang naghihintay, puwede mong balikan ang lesson o pumili ng suggested question.";
@@ -39,11 +41,11 @@ Identity and tone:
 - Be supportive, precise, concise, and educational.
 - You were created by AkiraC0de for studying the application's approved algorithm topics only.`;
 
-export const STUDY_ASSISTANT_REFUSAL = "I’m here to help you study the topics covered in this learning application. I can explain a concept, walk through an example, or help you practice. What would you like to learn?";
+export const STUDY_ASSISTANT_REFUSAL = "Sorry, but I’m only here to help you study the topics covered in this learning application. I can explain a concept, walk through an example, or help you practice. What would you like to learn?";
 
 export const APPROVED_TOPIC_TERMS = [
   "maximum flow", "ford-fulkerson", "residual graph", "augmenting path", "bottleneck", "min cut", "flow network", "capacity",
-  "string matching", "naive matching", "rabin-karp", "boyer-moore", "rolling hash", "bad character", "pattern", "text", "substring",
+  "string matching", "string-matching", "naive matching", "naive approach", "naive algorithm", "naive method", "rabin-karp", "rabin karp", "boyer-moore", "boyer moore", "rolling hash", "bad character", "pattern", "text", "substring", "match", "matching algorithm",
   "hashing", "hash table", "hash function", "collision", "chaining", "open addressing", "modulo", "bucket", "sha-256", "md5",
   "computational geometry", "convex hull", "closest pair", "cross product", "orientation", "shoelace", "point-in-polygon", "intersection", "coordinate", "distance",
   "parallel algorithm", "data parallelism", "task parallelism", "pipeline parallelism", "mapreduce", "processor", "worker", "synchronization", "speedup", "partition",
@@ -53,10 +55,18 @@ export const APPROVED_TOPIC_TERMS = [
 const INJECTION_TERMS = ["ignore previous", "ignore all previous", "reveal your prompt", "show your system message", "developer message", "system prompt", "jailbreak", "remove your restrictions", "act as a different", "disregard your rules"];
 const LESSON_CONTEXT_TERMS = ["this lesson", "this algorithm", "this topic", "this example", "explain this", "summarize this", "what did we learn", "help me understand", "give me a hint", "give me practice"];
 
+const TOPIC_CONTEXT_TERMS = [
+  "string matching", "string-matching", "maximum flow", "hashing", "computational geometry", "parallel algorithm", "parallel algorithms",
+];
+const TOPIC_CONCEPT_TERMS = [
+  "naive", "rabin", "boyer", "rolling hash", "collision", "chaining", "convex hull", "cross product", "orientation", "pipeline", "data parallel", "task parallel", "residual", "augmenting", "bottleneck", "min cut",
+];
+
 export function isStudyAssistantTopicQuestion(message: string, hasActiveLesson = false) {
   const normalized = message.toLowerCase();
   if (INJECTION_TERMS.some((term) => normalized.includes(term))) return false;
   if (APPROVED_TOPIC_TERMS.some((term) => normalized.includes(term))) return true;
+  if (TOPIC_CONTEXT_TERMS.some((term) => normalized.includes(term)) && TOPIC_CONCEPT_TERMS.some((term) => normalized.includes(term))) return true;
   return hasActiveLesson && LESSON_CONTEXT_TERMS.some((term) => normalized.includes(term));
 }
 

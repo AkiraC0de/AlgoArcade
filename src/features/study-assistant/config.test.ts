@@ -7,6 +7,9 @@ describe("study assistant scope", () => {
     expect(isStudyAssistantTopicQuestion("Explain Rabin-Karp rolling hash")).toBe(true);
     expect(isStudyAssistantTopicQuestion("How does data parallelism split records?")).toBe(true);
     expect(isStudyAssistantTopicQuestion("Can you explain this lesson?", true)).toBe(true);
+    expect(isStudyAssistantTopicQuestion("Explain the naive approach in string matching")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("How does the naive algorithm compare the pattern and text?")).toBe(true);
+    expect(isStudyAssistantTopicQuestion("Explain the naive approach", true)).toBe(true);
   });
 
   it("refuses unrelated or instruction-override questions", () => {
