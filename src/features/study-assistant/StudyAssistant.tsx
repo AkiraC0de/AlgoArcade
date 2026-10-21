@@ -123,13 +123,32 @@ export function StudyAssistant() {
   const messageTransition = reduceMotion
     ? { duration: 0.01 }
     : { duration: 0.24, ease: [0.22, 1, 0.36, 1] as const };
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const isMobileViewport = typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
+
+  useEffect(() => {
+    if (!isMobileViewport || typeof window === "undefined" || !window.visualViewport) return;
+    const viewport = window.visualViewport;
+    const updateKeyboardOffset = () => {
+      const offset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      setKeyboardOffset(Math.round(offset));
+    };
+    updateKeyboardOffset();
+    viewport.addEventListener("resize", updateKeyboardOffset);
+    viewport.addEventListener("scroll", updateKeyboardOffset);
+    return () => {
+      viewport.removeEventListener("resize", updateKeyboardOffset);
+      viewport.removeEventListener("scroll", updateKeyboardOffset);
+    };
+  }, [isMobileViewport]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({
       behavior: reduceMotion ? "auto" : "smooth",
       block: "nearest",
     });
-  }, [messages, loading, open, reduceMotion]);
+  }, [messages, loading, open, reduceMotion, keyboardOffset]);
+
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const submit = async (raw?: string) => {
@@ -212,8 +231,7 @@ export function StudyAssistant() {
             animate="visible"
             exit="exit"
             aria-label="Akira study assistant"
-            className={`fixed bottom-24 right-4 z-[59] flex w-[min(392px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border-2 border-primary/25 bg-card shadow-[0_24px_70px_rgba(22,40,29,.2)] sm:bottom-28 sm:right-7 ${minimized ? "h-auto" : "h-[min(650px,calc(100vh-8rem))]"}`}
-          >
+            className={`fixed right-4 z-[59] flex w-[min(392px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border-2 border-primary/25 bg-card shadow-[0_24px_70px_rgba(22,40,29,.2)] sm:bottom-28 sm:right-7 ${minimized ? "bottom-24 h-auto" : "bottom-4 h-[min(650px,calc(100dvh-1rem))] sm:bottom-28 sm:h-[min(650px,calc(100vh-8rem))]"}`} style={keyboardOffset > 0 ? { bottom: `${keyboardOffset + 8}px`, height: `calc(100vh - ${keyboardOffset + 16}px)` } : undefined}>
             <header className="flex items-center gap-3 border-b-2 border-line bg-gradient-to-r from-primary/10 via-card to-accent/10 px-4 py-3">
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-primary/10">
                 <motion.img
@@ -413,6 +431,9 @@ export function StudyAssistant() {
                     <textarea
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
+                      onFocus={(event) => {
+                        window.setTimeout(() => event.currentTarget.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" }), 120);
+                      }}
                       onKeyDown={handleKeyDown}
                       rows={2}
                       maxLength={1600}
