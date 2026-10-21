@@ -1,4 +1,4 @@
-import { STUDY_ASSISTANT_REFUSAL, type StudyChatMessage, type StudyLessonContext } from "./config";
+import { type StudyChatMessage, type StudyLessonContext } from "./config";
 
 export type { StudyChatMessage };
 
@@ -25,7 +25,6 @@ export async function requestStudyAssistant(
   }
 
   if (!response.ok) {
-    if (response.status === 429) return STUDY_ASSISTANT_REFUSAL;
     throw new Error(payload.error || `Study assistant request failed (${response.status}).`);
   }
 

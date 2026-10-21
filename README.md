@@ -176,7 +176,7 @@ npx vite build --clearScreen false
 
 ## Study assistant configuration
 
-The repository includes a floating Akira Study Assistant using the supplied `src/assets/AlgoArcadeBot.png` avatar. It is restricted in the UI and request instructions to the Module 6 topics: Maximum Flow, String Matching, Hashing, Computational Geometry, and Parallel Algorithms. The assistant is instructed to answer naturally in Taglish or match the student's Tagalog/English preference, with a maximum response budget of 700 output tokens. Rate-limited provider requests receive a short Taglish fallback message.
+The repository includes a floating Akira Study Assistant using the supplied `src/assets/AlgoArcadeBot.png` avatar. It is restricted by the AI's topic-scope instructions to the Module 6 topics: Maximum Flow, String Matching, Hashing, Computational Geometry, and Parallel Algorithms. The model checks each message against the current topic, lesson context, and recent conversation instead of requiring keyword matches, so short follow-ups such as `yes` and `continue` can work. It answers naturally in Taglish or matches the student's Tagalog/English preference, with a maximum response budget of 700 output tokens. Rate-limited provider requests receive a short Taglish fallback message.
 
 Configure the server-side Vercel Function locally by copying `.env.example` to `.env` and setting:
 
