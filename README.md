@@ -1,8 +1,25 @@
-# AlgoArcade
+## Getting started
+
+### Requirements
+
+- Node.js 18 or newer
+- npm
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Start the development server
+
+```bash
+npm run dev
+```
 
 Interactive learning platform for **Module 6: Advanced Algorithms**.
 
-AlgoArcade helps students move from an abstract algorithm idea to a visible, testable understanding. Each topic combines concise explanations, visual models, interactive controls, algorithm traces, and exercises.
+This system helps students move from an abstract algorithm idea to a visible, testable understanding. Each topic combines concise explanations, visual models, interactive controls, algorithm traces, and exercises.
 
 > **Open source:** [github.com/AkiraC0de/AlgoArcade](https://github.com/AkiraC0de/AlgoArcade)
 
@@ -119,24 +136,7 @@ src/
 | `/player` | Progress and level journey |
 | `/module6` | Compatibility route for the older Module 6 entry point |
 
-## Getting started
 
-### Requirements
-
-- Node.js 18 or newer
-- npm
-
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Start the development server
-
-```bash
-npm run dev
-```
 
 Vite will print the local development URL in the terminal.
 
