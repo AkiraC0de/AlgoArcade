@@ -147,11 +147,20 @@ function safeHistory(value: unknown): StudyChatMessage[] {
 }
 
 export default async function studyAssistantHandler(req: any, res: any) {
-  if (req.method === "OPTIONS") {
-    sendJson(res, 204, {});
+  const method = String(req.method || "GET").toUpperCase();
+  if (method === "OPTIONS") {
+    res.setHeader?.("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader?.("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader?.("Access-Control-Max-Age", "86400");
+    if (typeof res.status === "function") {
+      res.status(204).end();
+    } else {
+      res.statusCode = 204;
+      res.end();
+    }
     return;
   }
-  if (req.method !== "POST") {
+  if (method !== "POST") {
     sendJson(res, 405, { error: "Method not allowed." });
     return;
   }
