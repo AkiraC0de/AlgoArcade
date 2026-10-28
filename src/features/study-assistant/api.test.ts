@@ -4,7 +4,7 @@ import { STUDY_ASSISTANT_MAX_OUTPUT_TOKENS, STUDY_ASSISTANT_RATE_LIMITED } from 
 
 describe("study assistant response policy", () => {
   it("uses the requested output-token budget", () => {
-    expect(STUDY_ASSISTANT_MAX_OUTPUT_TOKENS).toBe(700);
+    expect(STUDY_ASSISTANT_MAX_OUTPUT_TOKENS).toBe(2000);
   });
 
   it("provides a Taglish rate-limit fallback", () => {

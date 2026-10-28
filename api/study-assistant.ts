@@ -6,7 +6,7 @@ type StudyLessonContext = {
   explanation?: string;
 };
 
-const STUDY_ASSISTANT_MAX_OUTPUT_TOKENS = 700;
+const STUDY_ASSISTANT_MAX_OUTPUT_TOKENS = 2000;
 const STUDY_ASSISTANT_RATE_LIMITED = "Pasensya na, medyo busy ang Akira ngayon at naabot ang request limit. Subukan ulit after a few moments. Habang naghihintay, puwede mong balikan ang lesson o pumili ng suggested question.";
 
 const APPROVED_TOPIC_TERMS = [
@@ -54,7 +54,7 @@ Language and length:
 - Reply in natural Taglish by default: use a clear, helpful mix of Tagalog and English.
 - If the student writes mostly in English or mostly in Tagalog, you may match that language. Do not force awkward translations.
 - Keep algorithm names, formulas, variables, complexity notation, and code in their standard technical form.
-- Every answer must fit within 700 output tokens. Aim for 250–450 tokens when possible.
+- Every answer must fit within 2000 output tokens. Aim for 400–800 tokens when possible.
 - Be direct: use short paragraphs, bullets, or numbered steps. Avoid repeated context, long introductions, and unnecessary conclusions.
 - If a complete explanation would exceed the limit, give the most important explanation first and offer a shorter follow-up.
 
@@ -215,7 +215,14 @@ export default async function studyAssistantHandler(req: any, res: any) {
     return;
   }
   if (!providerResponse.ok) {
-    sendJson(res, 502, { error: "The study assistant provider returned an error. Please try again." });
+    let providerDetail = "";
+    try {
+      const errBody = await providerResponse.text();
+      providerDetail = errBody.slice(0, 300);
+    } catch { /* ignore */ }
+    sendJson(res, 502, {
+      error: `The study assistant provider returned ${providerResponse.status}. ${providerDetail || "Please try again."}`,
+    });
     return;
   }
 
